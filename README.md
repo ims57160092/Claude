@@ -1,6 +1,6 @@
 # claude-web
 
-React + TypeScript web app built with [Vite](https://vite.dev/).
+React + TypeScript web app built with [Vite](https://vite.dev/) and styled with [Tailwind CSS](https://tailwindcss.com/).
 
 ## Getting started
 
