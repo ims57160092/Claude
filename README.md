@@ -37,6 +37,6 @@ CI (`.github/workflows/ci.yml`) runs lint, format check, tests and build on ever
 
 ## Deployment
 
-`.github/workflows/deploy.yml` builds the app and publishes it to GitHub Pages on every push to `main` (it can also be run manually from the Actions tab). The site is served at `https://<owner>.github.io/<repo>/`; the workflow passes that sub-path to Vite with `--base`.
+`.github/workflows/deploy.yml` builds the app and pushes `dist/` to the `gh-pages` branch on every push to `main` (it can also be run manually from the Actions tab). GitHub Pages serves that branch at `https://<owner>.github.io/<repo>/`; the workflow passes that sub-path to Vite with `--base`.
 
-One-time setup: in the repository's **Settings → Pages**, set **Source** to **GitHub Actions**.
+If the site does not appear after the first deploy, set **Settings → Pages → Source** to **Deploy from a branch**, branch `gh-pages`, folder `/ (root)`.
