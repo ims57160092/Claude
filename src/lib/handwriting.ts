@@ -27,13 +27,12 @@ export type Recognize = (
 
 const PROMPT = `The image is a handwritten page from a personal planner, written with a stylus. The writing may be Thai, English, or both.
 
-Your job is OCR: copy the handwriting character by character, exactly as written.
+Read it word by word and write out what it says, as text the writer can use as their note.
 - Keep every word, in the order written, in the original language. Do not translate.
 - Do not summarise, shorten, reword, merge or reorder anything, and do not add words.
-- Keep the writer's spelling, abbreviations, numbers and punctuation, even if they look wrong. Do not correct them.
-- Thai: keep every vowel, tone mark and other mark above or below the letters exactly as drawn.
+- Where a letter or mark is unclear, read it as the real word the writer most likely meant, using the words around it.
 - One entry per handwritten line, top to bottom. Keep bullets, dashes and list numbers that are written.
-- If a word cannot be read, write [?] in its place rather than guessing.
+- Write [?] only for a word you cannot make out at all.
 - Skip drawings, arrows, boxes and doodles, and do not describe them.
 
 Reply with only JSON in this shape: {"lines": ["first handwritten line", "second handwritten line"]}
