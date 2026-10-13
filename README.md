@@ -1,6 +1,6 @@
 # claude-web
 
-React + TypeScript web app built with [Vite](https://vite.dev/).
+React + TypeScript web app built with [Vite](https://vite.dev/) and styled with [Tailwind CSS](https://tailwindcss.com/).
 
 ## Getting started
 
@@ -34,3 +34,9 @@ public/           Static assets served as-is
 ```
 
 CI (`.github/workflows/ci.yml`) runs lint, format check, tests and build on every push to `main` and on pull requests.
+
+## Deployment
+
+`.github/workflows/deploy.yml` builds the app and publishes it to GitHub Pages on every push to `main` (it can also be run manually from the Actions tab). The site is served at `https://<owner>.github.io/<repo>/`; the workflow passes that sub-path to Vite with `--base`.
+
+One-time setup: in the repository's **Settings → Pages**, set **Source** to **GitHub Actions**.
