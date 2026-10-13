@@ -206,6 +206,24 @@ export function InkCanvas({ strokes, onChange }: Props) {
 
   useEffect(() => () => cancelAnimationFrame(frame.current), [])
 
+  // iPad Safari still scrolls the page under Apple Pencil despite
+  // `touch-action: none`. Cancelling the touch events (which needs a
+  // non-passive listener, so not React's onTouch*) stops it. Pointer events
+  // still arrive, and a finger drag scrolls through onPointerMove instead.
+  useEffect(() => {
+    const canvas = canvasRef.current
+    if (!canvas) return
+    const block = (e: TouchEvent) => {
+      if (e.cancelable) e.preventDefault()
+    }
+    canvas.addEventListener('touchstart', block, { passive: false })
+    canvas.addEventListener('touchmove', block, { passive: false })
+    return () => {
+      canvas.removeEventListener('touchstart', block)
+      canvas.removeEventListener('touchmove', block)
+    }
+  }, [])
+
   useEffect(() => {
     if (!clearArmed) return
     const t = window.setTimeout(() => setClearArmed(false), 3000)
@@ -454,7 +472,7 @@ export function InkCanvas({ strokes, onChange }: Props) {
       <canvas
         ref={canvasRef}
         aria-label="หน้าเขียนด้วยลายมือ"
-        className="ink-paper ink-dots aspect-[4/5] w-full touch-none rounded-lg border border-slate-300 shadow-sm select-none dark:border-slate-600"
+        className="ink-paper ink-dots aspect-[4/5] w-full touch-none rounded-lg border border-slate-300 shadow-sm select-none [-webkit-touch-callout:none] [-webkit-user-select:none] dark:border-slate-600"
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerEnd}

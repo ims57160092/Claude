@@ -1,4 +1,4 @@
-import { render, screen, within } from '@testing-library/react'
+import { fireEvent, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import App from './App'
 
@@ -33,6 +33,16 @@ describe('App', () => {
       within(toolbar).getByRole('button', { name: 'ปากกา' }),
     ).toHaveAttribute('aria-pressed', 'true')
     expect(screen.getByLabelText('หน้าเขียนด้วยลายมือ')).toBeInTheDocument()
+  })
+
+  it('stops the page from scrolling while writing on the canvas', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+    await user.click(screen.getByRole('button', { name: 'วัน' }))
+    const canvas = await screen.findByLabelText('หน้าเขียนด้วยลายมือ')
+    // fireEvent returns false when a listener called preventDefault().
+    expect(fireEvent.touchStart(canvas)).toBe(false)
+    expect(fireEvent.touchMove(canvas)).toBe(false)
   })
 
   it('opens a day from the month view', async () => {
