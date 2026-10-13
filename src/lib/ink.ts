@@ -53,11 +53,15 @@ export function drawStroke(ctx: CanvasRenderingContext2D, s: Stroke) {
 }
 
 const PADDING = 24
+/** Claude downsizes images to about this many pixels, so render up to it. */
+const TARGET_PIXELS = 1_200_000
+const MAX_SCALE = 4
 
 /**
- * Draws the strokes as black-on-white-friendly PNG, cropped to the writing
- * with a small margin, for handwriting recognition. Resolves null when there
- * is nothing to draw or the browser cannot render it.
+ * Draws the strokes as a PNG on white, cropped to the writing with a small
+ * margin and scaled up so small marks (such as Thai tone marks) stay
+ * legible. Resolves null when there is nothing to draw or the browser cannot
+ * render it.
  */
 export function renderStrokesToPng(strokes: Stroke[]): Promise<Blob | null> {
   const points = strokes.flatMap((s) => s.points)
@@ -66,16 +70,24 @@ export function renderStrokesToPng(strokes: Stroke[]): Promise<Blob | null> {
   const ys = points.map((p) => p[1])
   const left = Math.max(0, Math.min(...xs) - PADDING)
   const top = Math.max(0, Math.min(...ys) - PADDING)
-  const right = Math.min(INK_WIDTH, Math.max(...xs) + PADDING)
-  const bottom = Math.min(INK_HEIGHT, Math.max(...ys) + PADDING)
+  const width = Math.max(
+    1,
+    Math.min(INK_WIDTH, Math.max(...xs) + PADDING) - left,
+  )
+  const height = Math.max(
+    1,
+    Math.min(INK_HEIGHT, Math.max(...ys) + PADDING) - top,
+  )
+  const scale = Math.min(MAX_SCALE, Math.sqrt(TARGET_PIXELS / (width * height)))
 
   const canvas = document.createElement('canvas')
-  canvas.width = Math.max(1, Math.ceil(right - left))
-  canvas.height = Math.max(1, Math.ceil(bottom - top))
+  canvas.width = Math.ceil(width * scale)
+  canvas.height = Math.ceil(height * scale)
   const ctx = canvas.getContext('2d')
   if (!ctx) return Promise.resolve(null)
   ctx.fillStyle = '#ffffff'
   ctx.fillRect(0, 0, canvas.width, canvas.height)
+  ctx.scale(scale, scale)
   ctx.translate(-left, -top)
   for (const s of strokes) drawStroke(ctx, s)
   return new Promise((resolve) => canvas.toBlob(resolve, 'image/png'))

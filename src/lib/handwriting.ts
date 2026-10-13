@@ -8,11 +8,12 @@ interface SampleError {
   code: string
   message: string
 }
+interface SampleOptions {
+  images: Blob[]
+  signal?: AbortSignal
+}
 interface Sample {
-  (
-    input: string,
-    options: { images: Blob[]; signal?: AbortSignal },
-  ): Promise<{ text: string }>
+  json(input: string, options: SampleOptions): Promise<unknown>
   limits(): Promise<{ images?: unknown }>
 }
 interface ClaudeRuntime {
@@ -24,13 +25,19 @@ export type Recognize = (
   signal: AbortSignal,
 ) => Promise<string>
 
-export const EMPTY_MARKER = '<EMPTY>'
+const PROMPT = `The image is a handwritten page from a personal planner, written with a stylus. The writing may be Thai, English, or both.
 
-const PROMPT = `This image is a handwritten page from a personal planner, written with a stylus. The writing may be Thai, English, or both.
+Your job is OCR: copy the handwriting character by character, exactly as written.
+- Keep every word, in the order written, in the original language. Do not translate.
+- Do not summarise, shorten, reword, merge or reorder anything, and do not add words.
+- Keep the writer's spelling, abbreviations, numbers and punctuation, even if they look wrong. Do not correct them.
+- Thai: keep every vowel, tone mark and other mark above or below the letters exactly as drawn.
+- One entry per handwritten line, top to bottom. Keep bullets, dashes and list numbers that are written.
+- If a word cannot be read, write [?] in its place rather than guessing.
+- Skip drawings, arrows, boxes and doodles, and do not describe them.
 
-Transcribe the handwriting into plain text exactly as written. Keep the original language and spelling, keep line breaks, and write list items one per line. Skip drawings, arrows and doodles, and do not describe them. Do not translate, summarise, or add anything.
-
-Reply with only the transcribed text. If nothing on the page is readable text, reply with exactly: ${EMPTY_MARKER}`
+Reply with only JSON in this shape: {"lines": ["first handwritten line", "second handwritten line"]}
+If there is no readable writing, reply {"lines": []}.`
 
 /** Error codes after which recognition stays hidden for this page load. */
 export const PERMANENT_ERRORS = new Set([
@@ -65,8 +72,12 @@ export async function loadRecognizer(): Promise<Recognize | null> {
   return async (strokes, signal) => {
     const png = await renderStrokesToPng(strokes)
     if (!png) return ''
-    const { text } = await sample(PROMPT, { images: [png], signal })
-    const trimmed = text.trim()
-    return trimmed === EMPTY_MARKER ? '' : trimmed
+    const reply = await sample.json(PROMPT, { images: [png], signal })
+    const lines = (reply as { lines?: unknown } | null)?.lines
+    if (!Array.isArray(lines)) return ''
+    return lines
+      .map((line) => String(line).trimEnd())
+      .join('\n')
+      .trim()
   }
 }

@@ -16,10 +16,11 @@ const stroke = {
   points: [[10, 10, 0.5] as [number, number, number]],
 }
 
-function installSample(sample: ReturnType<typeof vi.fn>, images = true) {
-  Object.assign(sample, {
+function installSample(json: ReturnType<typeof vi.fn>, images = true) {
+  const sample = {
+    json,
     limits: async () => (images ? { images: { maxCount: 4 } } : {}),
-  })
+  }
   ;(window as unknown as { claude?: unknown }).claude = {
     use: async () => sample,
   }
@@ -51,8 +52,8 @@ describe('HandwritingToText', () => {
   })
 
   it('reads the handwriting and appends the edited text to the note', async () => {
-    const sample = vi.fn(async () => ({ text: 'ซื้อนม\nโทรหาแม่' }))
-    installSample(sample)
+    const json = vi.fn(async () => ({ lines: ['ซื้อนม', 'โทรหาแม่'] }))
+    installSample(json)
     await saveEntry({
       ...emptyEntry(DATE),
       text: 'โน้ตเดิม',
@@ -68,7 +69,7 @@ describe('HandwritingToText', () => {
       'ข้อความที่อ่านได้ (แก้ไขก่อนเพิ่มได้)',
     )
     expect(result).toHaveValue('ซื้อนม\nโทรหาแม่')
-    const [, options] = sample.mock.calls[0] as unknown as [
+    const [, options] = json.mock.calls[0] as unknown as [
       string,
       { images: Blob[] },
     ]
@@ -82,7 +83,7 @@ describe('HandwritingToText', () => {
   })
 
   it('shows a message when nothing readable was found', async () => {
-    installSample(vi.fn(async () => ({ text: '<EMPTY>' })))
+    installSample(vi.fn(async () => ({ lines: [] })))
     await saveEntry({ ...emptyEntry(DATE), strokes: [stroke] })
     const user = userEvent.setup()
     render(<DayView date={DATE} />)

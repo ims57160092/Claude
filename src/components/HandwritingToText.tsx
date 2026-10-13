@@ -20,6 +20,7 @@ const ERROR_COPY: Record<string, string> = {
   image_rejected: 'ส่งภาพลายมือไม่สำเร็จ ลองเขียนให้น้อยลงแล้วแปลงใหม่',
   refused: 'Claude อ่านหน้านี้ให้ไม่ได้',
   empty_completion: 'ไม่ได้รับข้อความกลับมา ลองใหม่อีกครั้ง',
+  invalid_json: 'อ่านผลลัพธ์ไม่สำเร็จ ลองใหม่อีกครั้ง',
 }
 
 interface Props {
