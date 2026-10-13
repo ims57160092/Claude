@@ -5,6 +5,7 @@ A planner for the browser, designed for iPad and Apple Pencil. Built with React,
 - **Month, week and day views.** Tap any day to open it.
 - **Each day has** a task list (with optional times), a typed note, and a handwriting page.
 - **Handwriting** supports pen (pressure-sensitive), highlighter and stroke eraser, with undo/redo. Finger input scrolls the page unless "เขียนด้วยนิ้ว" (draw with finger) is turned on, so your palm never leaves marks.
+- **Handwriting to text.** When the planner is opened as a claude.ai Artifact, "แปลงลายมือเป็นข้อความ" (convert handwriting to text) sends an image of the page to Claude on the viewer's own account and shows the transcription for editing before it is added to the note. Elsewhere (GitHub Pages, local dev) the button is hidden.
 - **Storage** is in the browser's IndexedDB on the device; nothing is sent to a server. Use "สำรองข้อมูล" (back up) to download a `.json` file and "นำเข้า" (import) to restore it.
 
 On iPad, open the site in Safari and use **Share → Add to Home Screen**. It then runs full screen, and Safari is far less likely to clear its stored data.
@@ -38,6 +39,8 @@ src/
   lib/date.ts          Date keys, week/month grids, Thai date formatting
   lib/storage.ts       IndexedDB storage, backup export/import
   lib/hooks.ts         React hooks for loading and autosaving days
+  lib/ink.ts           Stroke drawing and PNG rendering
+  lib/handwriting.ts   Handwriting recognition through the claude.ai Artifact runtime
   test/setup.ts        Test setup (fake IndexedDB, jsdom shims)
 public/           Static assets served as-is
 ```

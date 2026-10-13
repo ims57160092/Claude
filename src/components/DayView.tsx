@@ -1,5 +1,6 @@
 import { useDayEntry } from '../lib/hooks'
 import type { DateKey } from '../lib/date'
+import { HandwritingToText } from './HandwritingToText'
 import { InkCanvas } from './InkCanvas'
 import { TaskList } from './TaskList'
 
@@ -58,6 +59,15 @@ export function DayView({ date }: { date: DateKey }) {
         >
           เขียนด้วยลายมือ
         </h2>
+        <HandwritingToText
+          strokes={entry.strokes}
+          onInsert={(text) =>
+            update((e) => ({
+              ...e,
+              text: e.text.trim() ? `${e.text.trimEnd()}\n${text}` : text,
+            }))
+          }
+        />
         <InkCanvas
           key={date}
           strokes={entry.strokes}

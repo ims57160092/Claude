@@ -12,6 +12,7 @@ import {
   type Point,
   type Stroke,
 } from '../lib/storage'
+import { drawStroke } from '../lib/ink'
 
 type Tool = InkTool | 'eraser'
 
@@ -20,58 +21,6 @@ const HIGHLIGHTER_COLORS = ['#facc15', '#f472b6', '#38bdf8', '#4ade80']
 const SIZES = [2.5, 4.5, 8]
 const HIGHLIGHTER_SCALE = 5
 const ERASER_RADIUS = 16
-
-function drawStroke(ctx: CanvasRenderingContext2D, s: Stroke) {
-  const pts = s.points
-  if (pts.length === 0) return
-  ctx.strokeStyle = s.color
-  ctx.fillStyle = s.color
-  ctx.lineCap = 'round'
-  ctx.lineJoin = 'round'
-
-  if (s.tool === 'highlighter') {
-    // One path, so overlapping segments of the same stroke don't darken.
-    ctx.globalAlpha = 0.35
-    ctx.lineWidth = s.width
-    ctx.beginPath()
-    ctx.moveTo(pts[0][0], pts[0][1])
-    if (pts.length === 1) ctx.lineTo(pts[0][0] + 0.1, pts[0][1])
-    for (let i = 1; i < pts.length - 1; i++) {
-      const mx = (pts[i][0] + pts[i + 1][0]) / 2
-      const my = (pts[i][1] + pts[i + 1][1]) / 2
-      ctx.quadraticCurveTo(pts[i][0], pts[i][1], mx, my)
-    }
-    if (pts.length > 1)
-      ctx.lineTo(pts[pts.length - 1][0], pts[pts.length - 1][1])
-    ctx.stroke()
-    ctx.globalAlpha = 1
-    return
-  }
-
-  // Pen: each segment gets its own width from the pencil pressure.
-  const widthAt = (p: number) => s.width * (0.45 + p)
-  if (pts.length === 1) {
-    ctx.beginPath()
-    ctx.arc(pts[0][0], pts[0][1], widthAt(pts[0][2]) / 2, 0, Math.PI * 2)
-    ctx.fill()
-    return
-  }
-  let fromX = pts[0][0]
-  let fromY = pts[0][1]
-  for (let i = 1; i < pts.length; i++) {
-    const [x, y, p] = pts[i]
-    const last = i === pts.length - 1
-    const toX = last ? x : (x + pts[i + 1][0]) / 2
-    const toY = last ? y : (y + pts[i + 1][1]) / 2
-    ctx.lineWidth = widthAt((pts[i - 1][2] + p) / 2)
-    ctx.beginPath()
-    ctx.moveTo(fromX, fromY)
-    ctx.quadraticCurveTo(x, y, toX, toY)
-    ctx.stroke()
-    fromX = toX
-    fromY = toY
-  }
-}
 
 function distanceToSegment(px: number, py: number, a: Point, b: Point): number {
   const dx = b[0] - a[0]
