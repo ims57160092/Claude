@@ -1,12 +1,47 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import App from './App'
 
+beforeEach(() => localStorage.clear())
+
 describe('App', () => {
-  it('increments the counter when clicked', async () => {
+  it('adds a task in day view and shows it in the week view', async () => {
+    const user = userEvent.setup()
     render(<App />)
-    const button = screen.getByRole('button', { name: /count is 0/i })
-    await userEvent.click(button)
-    expect(button).toHaveTextContent('Count is 1')
+
+    await user.click(screen.getByRole('button', { name: 'วัน' }))
+    await user.type(
+      await screen.findByRole('textbox', { name: 'งานใหม่' }),
+      'ซื้อของ',
+    )
+    await user.click(screen.getByRole('button', { name: 'เพิ่ม' }))
+    expect(screen.getByLabelText('ซื้อของ')).not.toBeChecked()
+
+    // Switching views flushes the pending save.
+    await user.click(screen.getByRole('button', { name: 'สัปดาห์' }))
+    expect(await screen.findByLabelText('ซื้อของ')).toBeInTheDocument()
+  })
+
+  it('shows the handwriting page with its tools', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+    await user.click(screen.getByRole('button', { name: 'วัน' }))
+    const toolbar = await screen.findByRole('toolbar', {
+      name: 'เครื่องมือเขียน',
+    })
+    expect(
+      within(toolbar).getByRole('button', { name: 'ปากกา' }),
+    ).toHaveAttribute('aria-pressed', 'true')
+    expect(screen.getByLabelText('หน้าเขียนด้วยลายมือ')).toBeInTheDocument()
+  })
+
+  it('opens a day from the month view', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+    await user.click(screen.getByRole('button', { name: 'เดือน' }))
+    await user.click(screen.getAllByRole('button', { name: /^15/ })[0])
+    expect(
+      await screen.findByRole('heading', { name: /15/ }),
+    ).toBeInTheDocument()
   })
 })

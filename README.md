@@ -1,6 +1,13 @@
-# claude-web
+# Planner
 
-React + TypeScript web app built with [Vite](https://vite.dev/) and styled with [Tailwind CSS](https://tailwindcss.com/).
+A planner for the browser, designed for iPad and Apple Pencil. Built with React, TypeScript, [Vite](https://vite.dev/) and [Tailwind CSS](https://tailwindcss.com/).
+
+- **Month, week and day views.** Tap any day to open it.
+- **Each day has** a task list (with optional times), a typed note, and a handwriting page.
+- **Handwriting** supports pen (pressure-sensitive), highlighter and stroke eraser, with undo/redo. Finger input scrolls the page unless "เขียนด้วยนิ้ว" (draw with finger) is turned on, so your palm never leaves marks.
+- **Storage** is in the browser's IndexedDB on the device; nothing is sent to a server. Use "สำรองข้อมูล" (back up) to download a `.json` file and "นำเข้า" (import) to restore it.
+
+On iPad, open the site in Safari and use **Share → Add to Home Screen**. It then runs full screen, and Safari is far less likely to clear its stored data.
 
 ## Getting started
 
@@ -26,10 +33,12 @@ npm run dev
 
 ```
 src/
-  App.tsx         Root component
-  App.test.tsx    Example component test
-  main.tsx        Entry point
-  test/setup.ts   Test setup (jest-dom matchers)
+  App.tsx              App shell: header, navigation, view switching
+  components/          Month, week and day views, task list, handwriting canvas
+  lib/date.ts          Date keys, week/month grids, Thai date formatting
+  lib/storage.ts       IndexedDB storage, backup export/import
+  lib/hooks.ts         React hooks for loading and autosaving days
+  test/setup.ts        Test setup (fake IndexedDB, jsdom shims)
 public/           Static assets served as-is
 ```
 
