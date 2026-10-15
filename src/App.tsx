@@ -6,9 +6,6 @@ import { WeekView } from './components/WeekView'
 import {
   addDays,
   addMonths,
-  formatLong,
-  formatMonth,
-  formatWeek,
   fromKey,
   toKey,
   todayKey,
@@ -68,24 +65,17 @@ function App() {
     setView('day')
   }
 
-  const d = fromKey(date)
-  const title =
-    view === 'month'
-      ? formatMonth(d)
-      : view === 'week'
-        ? formatWeek(d)
-        : formatLong(d)
   const navBtn =
-    'flex size-9 items-center justify-center rounded-md text-lg text-slate-700 hover:bg-slate-200 focus-visible:outline-2 focus-visible:outline-indigo-500 dark:text-slate-200 dark:hover:bg-slate-700'
+    'flex size-10 items-center justify-center rounded-full bg-white/70 text-xl text-stone-700 transition hover:bg-white focus-visible:outline-2 focus-visible:outline-coral-600'
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100">
-      <header className="sticky top-[env(safe-area-inset-top,0px)] z-10 border-b border-slate-200 bg-slate-50/90 backdrop-blur dark:border-slate-800 dark:bg-slate-950/90">
-        <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3">
-          <span className="text-lg font-bold tracking-tight text-indigo-700 dark:text-indigo-300">
+    <div className="bg-blush min-h-screen font-sans text-stone-900">
+      <header className="bg-blush/90 sticky top-[env(safe-area-inset-top,0px)] z-10 backdrop-blur">
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-x-5 gap-y-2 px-4 py-3">
+          <span className="font-script text-3xl leading-none text-stone-900">
             Planner
           </span>
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1.5">
             <button
               type="button"
               aria-label="ก่อนหน้า"
@@ -96,7 +86,7 @@ function App() {
             </button>
             <button
               type="button"
-              className="rounded-md border border-slate-300 px-3 py-1.5 text-sm font-medium hover:bg-slate-200 focus-visible:outline-2 focus-visible:outline-indigo-500 dark:border-slate-600 dark:hover:bg-slate-700"
+              className="focus-visible:outline-coral-600 h-10 rounded-full bg-white/70 px-4 text-sm font-medium text-stone-800 transition hover:bg-white focus-visible:outline-2"
               onClick={() => setDate(todayKey())}
             >
               วันนี้
@@ -110,14 +100,11 @@ function App() {
               ›
             </button>
           </div>
-          <h1 className="min-w-0 text-lg font-semibold text-balance">
-            {title}
-          </h1>
           <div className="ml-auto flex flex-wrap items-center gap-2">
             <div
               role="group"
               aria-label="มุมมอง"
-              className="flex rounded-lg bg-slate-200 p-0.5 dark:bg-slate-800"
+              className="flex rounded-full bg-white/50 p-1"
             >
               {VIEWS.map(([v, label]) => (
                 <button
@@ -125,10 +112,10 @@ function App() {
                   type="button"
                   aria-pressed={view === v}
                   onClick={() => setView(v)}
-                  className={`rounded-md px-3 py-1.5 text-sm font-medium focus-visible:outline-2 focus-visible:outline-indigo-500 ${
+                  className={`focus-visible:outline-coral-600 rounded-full px-4 py-1.5 text-sm font-medium transition focus-visible:outline-2 ${
                     view === v
-                      ? 'bg-white text-indigo-700 shadow-sm dark:bg-slate-600 dark:text-white'
-                      : 'text-slate-600 dark:text-slate-300'
+                      ? 'text-coral-700 bg-white shadow-sm'
+                      : 'text-stone-700 hover:bg-white/60'
                   }`}
                 >
                   {label}
@@ -139,7 +126,7 @@ function App() {
           </div>
         </div>
       </header>
-      <main className="mx-auto max-w-7xl px-4 py-4">
+      <main className="mx-auto max-w-7xl px-4 pt-2 pb-10">
         {view === 'month' && <MonthView date={date} onOpenDay={openDay} />}
         {view === 'week' && <WeekView date={date} onOpenDay={openDay} />}
         {view === 'day' && <DayView key={date} date={date} />}
@@ -150,7 +137,7 @@ function App() {
         className="pointer-events-none fixed inset-x-0 bottom-[calc(env(safe-area-inset-bottom,0px)+1rem)] flex justify-center px-4"
       >
         {message && (
-          <p className="rounded-lg bg-slate-900 px-4 py-2 text-sm text-white shadow-lg dark:bg-slate-100 dark:text-slate-900">
+          <p className="rounded-full bg-stone-900 px-5 py-2 text-sm text-white shadow-lg">
             {message}
           </p>
         )}

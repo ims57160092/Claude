@@ -1,11 +1,55 @@
 @import 'tailwindcss';
 
-/* Writing paper: light in both themes so every ink colour stays readable. */
+/*
+ * Printable-planner look: white paper pages on a blush background, a brush
+ * script for page titles, soft pink label strips and light grey blocks.
+ * One light theme on purpose, like paper, so `dark:` only applies with an
+ * explicit .dark class (never set) instead of following the OS.
+ */
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-sans: 'Sarabun', system-ui, 'Thonburi', sans-serif;
+  --font-script: 'Kaushan Script', 'Snell Roundhand', cursive;
+
+  --color-blush: #f6c7bf;
+  --color-paper: #ffffff;
+  --color-coral-50: #fef5f3;
+  --color-coral-100: #fce4df;
+  --color-coral-200: #f9d0c8;
+  --color-coral-300: #f3b1a6;
+  --color-coral-400: #ea8e80;
+  --color-coral-500: #dc6f60;
+  --color-coral-600: #bd4f43;
+  --color-coral-700: #9f4237;
+  --color-coral-800: #833a31;
+  --color-coral-900: #6d332c;
+}
+
+body {
+  background: var(--color-blush);
+}
+
+/* Writing paper: stays light so every ink colour stays readable. */
 .ink-paper {
-  background-color: #fdfdfb;
+  background-color: #fffdfc;
 }
 
 .ink-dots {
-  background-image: radial-gradient(circle, #cbd5e1 1px, transparent 1.2px);
+  background-image: radial-gradient(circle, #e4cfca 1px, transparent 1.2px);
   background-size: 4% 3.2%;
+}
+
+/* Ruled lines that scroll with the text in a textarea. */
+.ruled {
+  --rule: 2rem;
+  line-height: var(--rule);
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent calc(var(--rule) - 1px),
+    #e9dfdc calc(var(--rule) - 1px),
+    #e9dfdc var(--rule)
+  );
+  background-attachment: local;
 }

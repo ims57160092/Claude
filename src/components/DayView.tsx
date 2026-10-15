@@ -1,79 +1,80 @@
 import { useDayEntry } from '../lib/hooks'
-import type { DateKey } from '../lib/date'
+import { formatLong, fromKey, type DateKey } from '../lib/date'
 import { HandwritingToText } from './HandwritingToText'
 import { InkCanvas } from './InkCanvas'
+import { Page } from './Page'
+import { LABEL_STRIP, LABEL_WORD } from './styles'
 import { TaskList } from './TaskList'
+
+function Label({ id, word, thai }: { id: string; word: string; thai: string }) {
+  return (
+    <h2 id={id} className={LABEL_STRIP}>
+      <span className={LABEL_WORD}>{word}</span>
+      <span className="text-sm">{thai}</span>
+    </h2>
+  )
+}
 
 export function DayView({ date }: { date: DateKey }) {
   const [entry, update] = useDayEntry(date)
 
-  if (!entry) {
-    return <p className="py-12 text-center text-slate-500">กำลังเปิด…</p>
-  }
-
   return (
-    <div className="grid gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
-      <div className="flex min-w-0 flex-col gap-6">
-        <section
-          aria-labelledby="tasks-heading"
-          className="flex flex-col gap-2"
-        >
-          <h2
-            id="tasks-heading"
-            className="text-sm font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400"
+    <Page title="Daily plan" heading={formatLong(fromKey(date))}>
+      {!entry ? (
+        <p className="py-12 text-center text-stone-500">กำลังเปิด…</p>
+      ) : (
+        <div className="grid gap-8 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
+          <div className="flex min-w-0 flex-col gap-8">
+            <section
+              aria-labelledby="tasks-heading"
+              className="flex flex-col gap-1"
+            >
+              <Label id="tasks-heading" word="To do" thai="งานที่ต้องทำ" />
+              <TaskList
+                tasks={entry.tasks}
+                onChange={(tasks) => update((e) => ({ ...e, tasks }))}
+              />
+            </section>
+            <section
+              aria-labelledby="note-heading"
+              className="flex flex-col gap-1"
+            >
+              <Label id="note-heading" word="Notes" thai="โน้ต" />
+              <textarea
+                id="day-note"
+                aria-label="โน้ต"
+                value={entry.text}
+                onChange={(ev) => {
+                  const text = ev.target.value
+                  update((e) => ({ ...e, text }))
+                }}
+                placeholder="พิมพ์โน้ต หรือเขียนด้วย Apple Pencil (Scribble) ในช่องนี้ก็ได้"
+                className="ruled focus-visible:ring-coral-200 min-h-64 w-full resize-y bg-transparent px-1 text-base text-stone-800 placeholder:text-stone-400 focus:outline-none focus-visible:ring-2"
+              />
+            </section>
+          </div>
+          <section
+            aria-labelledby="ink-heading"
+            className="flex min-w-0 flex-col gap-2"
           >
-            งานที่ต้องทำ
-          </h2>
-          <TaskList
-            tasks={entry.tasks}
-            onChange={(tasks) => update((e) => ({ ...e, tasks }))}
-          />
-        </section>
-        <section aria-labelledby="note-heading" className="flex flex-col gap-2">
-          <h2
-            id="note-heading"
-            className="text-sm font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400"
-          >
-            โน้ต
-          </h2>
-          <textarea
-            id="day-note"
-            aria-labelledby="note-heading"
-            value={entry.text}
-            onChange={(ev) => {
-              const text = ev.target.value
-              update((e) => ({ ...e, text }))
-            }}
-            placeholder="พิมพ์โน้ต หรือเขียนด้วย Apple Pencil (Scribble) ในช่องนี้ก็ได้"
-            className="min-h-48 w-full resize-y rounded-lg border border-slate-300 bg-white p-3 text-base leading-relaxed dark:border-slate-600 dark:bg-slate-900"
-          />
-        </section>
-      </div>
-      <section
-        aria-labelledby="ink-heading"
-        className="flex min-w-0 flex-col gap-2"
-      >
-        <h2
-          id="ink-heading"
-          className="text-sm font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400"
-        >
-          เขียนด้วยลายมือ
-        </h2>
-        <HandwritingToText
-          strokes={entry.strokes}
-          onInsert={(text) =>
-            update((e) => ({
-              ...e,
-              text: e.text.trim() ? `${e.text.trimEnd()}\n${text}` : text,
-            }))
-          }
-        />
-        <InkCanvas
-          key={date}
-          strokes={entry.strokes}
-          onChange={(strokes) => update((e) => ({ ...e, strokes }))}
-        />
-      </section>
-    </div>
+            <Label id="ink-heading" word="Sketch" thai="เขียนด้วยลายมือ" />
+            <HandwritingToText
+              strokes={entry.strokes}
+              onInsert={(text) =>
+                update((e) => ({
+                  ...e,
+                  text: e.text.trim() ? `${e.text.trimEnd()}\n${text}` : text,
+                }))
+              }
+            />
+            <InkCanvas
+              key={date}
+              strokes={entry.strokes}
+              onChange={(strokes) => update((e) => ({ ...e, strokes }))}
+            />
+          </section>
+        </div>
+      )}
+    </Page>
   )
 }

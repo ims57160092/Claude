@@ -12,7 +12,7 @@ export function MiniInk({
     <svg
       viewBox={`0 0 ${INK_WIDTH} ${INK_HEIGHT}`}
       preserveAspectRatio="xMidYMin meet"
-      className={`ink-paper rounded border border-slate-200 dark:border-slate-700 ${className}`}
+      className={`ink-paper rounded border border-stone-200 ${className}`}
       aria-label="ตัวอย่างลายมือ"
       role="img"
     >

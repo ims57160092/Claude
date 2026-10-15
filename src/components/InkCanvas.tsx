@@ -311,18 +311,16 @@ export function InkCanvas({ strokes, onChange }: Props) {
   const colors = tool === 'highlighter' ? HIGHLIGHTER_COLORS : PEN_COLORS
   const activeColor = tool === 'highlighter' ? highlightColor : penColor
   const chip =
-    'rounded-md px-2.5 py-1.5 text-sm font-medium transition focus-visible:outline-2 focus-visible:outline-indigo-500'
+    'rounded-md px-2.5 py-1.5 text-sm font-medium transition focus-visible:outline-2 focus-visible:outline-coral-500'
   const chipState = (on: boolean) =>
-    on
-      ? 'bg-indigo-600 text-white'
-      : 'text-slate-700 hover:bg-slate-200 dark:text-slate-200 dark:hover:bg-slate-700'
+    on ? 'bg-coral-600 text-white' : 'text-stone-700 hover:bg-stone-200'
 
   return (
     <div className="flex flex-col gap-2">
       <div
         role="toolbar"
         aria-label="เครื่องมือเขียน"
-        className="flex flex-wrap items-center gap-1 rounded-lg bg-slate-100 p-1 dark:bg-slate-800"
+        className="flex flex-wrap items-center gap-1 rounded-lg bg-stone-100 p-1"
       >
         {(
           [
@@ -341,10 +339,7 @@ export function InkCanvas({ strokes, onChange }: Props) {
             {label}
           </button>
         ))}
-        <span
-          className="mx-1 h-6 w-px bg-slate-300 dark:bg-slate-600"
-          aria-hidden
-        />
+        <span className="mx-1 h-6 w-px bg-stone-300" aria-hidden />
         {tool !== 'eraser' &&
           colors.map((c) => (
             <button
@@ -355,9 +350,9 @@ export function InkCanvas({ strokes, onChange }: Props) {
               onClick={() =>
                 tool === 'pen' ? setPenColor(c) : setHighlightColor(c)
               }
-              className={`size-7 rounded-full border-2 transition focus-visible:outline-2 focus-visible:outline-indigo-500 ${
+              className={`focus-visible:outline-coral-500 size-7 rounded-full border-2 transition focus-visible:outline-2 ${
                 activeColor === c
-                  ? 'border-indigo-600 ring-2 ring-white dark:ring-slate-900'
+                  ? 'border-coral-600 ring-2 ring-white'
                   : 'border-transparent'
               }`}
               style={{ backgroundColor: c }}
@@ -379,10 +374,7 @@ export function InkCanvas({ strokes, onChange }: Props) {
               />
             </button>
           ))}
-        <span
-          className="mx-1 h-6 w-px bg-slate-300 dark:bg-slate-600"
-          aria-hidden
-        />
+        <span className="mx-1 h-6 w-px bg-stone-300" aria-hidden />
         <button
           type="button"
           className={`${chip} ${chipState(false)} disabled:opacity-40`}
@@ -407,11 +399,11 @@ export function InkCanvas({ strokes, onChange }: Props) {
         >
           {clearArmed ? 'แตะอีกครั้งเพื่อล้าง' : 'ล้างหน้า'}
         </button>
-        <label className="ml-auto flex items-center gap-2 px-2 text-sm text-slate-700 dark:text-slate-200">
+        <label className="ml-auto flex items-center gap-2 px-2 text-sm text-stone-700">
           <input
             id="finger-draw"
             type="checkbox"
-            className="size-4 accent-indigo-600"
+            className="accent-coral-600 size-4"
             checked={fingerDraws}
             onChange={(e) => setFingerDraws(e.target.checked)}
           />
@@ -421,7 +413,7 @@ export function InkCanvas({ strokes, onChange }: Props) {
       <canvas
         ref={canvasRef}
         aria-label="หน้าเขียนด้วยลายมือ"
-        className="ink-paper ink-dots aspect-[4/5] w-full touch-none rounded-lg border border-slate-300 shadow-sm select-none [-webkit-touch-callout:none] [-webkit-user-select:none] dark:border-slate-600"
+        className="ink-paper ink-dots aspect-[4/5] w-full touch-none rounded-lg border border-stone-300 shadow-sm select-none [-webkit-touch-callout:none] [-webkit-user-select:none]"
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerEnd}

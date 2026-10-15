@@ -1,6 +1,7 @@
 import { useRef, type ChangeEvent } from 'react'
 import { exportBackup, importBackup } from '../lib/storage'
 import { todayKey } from '../lib/date'
+import { QUIET_BUTTON } from './styles'
 
 interface Props {
   onMessage: (message: string) => void
@@ -40,8 +41,7 @@ export function BackupMenu({ onMessage }: Props) {
     }
   }
 
-  const btn =
-    'rounded-md px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-200 focus-visible:outline-2 focus-visible:outline-indigo-500 dark:text-slate-200 dark:hover:bg-slate-700'
+  const btn = `${QUIET_BUTTON} bg-white/50 hover:bg-white`
 
   return (
     <div className="flex items-center gap-1">

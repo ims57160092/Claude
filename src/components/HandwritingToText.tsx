@@ -71,7 +71,7 @@ export function HandwritingToText({ strokes, onInsert }: Props) {
   }
 
   const btn =
-    'rounded-md px-3 py-1.5 text-sm font-medium focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 disabled:opacity-40'
+    'rounded-md px-3 py-1.5 text-sm font-medium focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-coral-500 disabled:opacity-40'
 
   return (
     <div className="flex flex-col gap-2">
@@ -79,7 +79,7 @@ export function HandwritingToText({ strokes, onInsert }: Props) {
         <div className="flex flex-wrap items-center gap-2">
           <button
             type="button"
-            className={`${btn} bg-indigo-600 text-white hover:bg-indigo-700`}
+            className={`${btn} bg-coral-600 hover:bg-coral-700 text-white`}
             onClick={() => void read()}
             disabled={!strokes.length || state.kind === 'reading'}
           >
@@ -90,24 +90,24 @@ export function HandwritingToText({ strokes, onInsert }: Props) {
           {state.kind === 'reading' && (
             <button
               type="button"
-              className={`${btn} text-slate-700 hover:bg-slate-200 dark:text-slate-200 dark:hover:bg-slate-700`}
+              className={`${btn} text-stone-700 hover:bg-stone-200`}
               onClick={() => controller.current?.abort()}
             >
               หยุด
             </button>
           )}
           {state.kind === 'error' && (
-            <p role="alert" className="text-sm text-red-700 dark:text-red-400">
+            <p role="alert" className="text-sm text-red-700">
               {state.message}
             </p>
           )}
         </div>
       )}
       {state.kind === 'result' && (
-        <div className="flex flex-col gap-2 rounded-lg border border-indigo-200 bg-indigo-50 p-3 dark:border-indigo-900 dark:bg-indigo-950">
+        <div className="border-coral-200 bg-coral-50 flex flex-col gap-2 rounded-lg border p-3">
           <label
             htmlFor="recognized-text"
-            className="text-sm font-medium text-indigo-900 dark:text-indigo-100"
+            className="text-coral-900 text-sm font-medium"
           >
             ข้อความที่อ่านได้ (แก้ไขก่อนเพิ่มได้)
           </label>
@@ -116,12 +116,12 @@ export function HandwritingToText({ strokes, onInsert }: Props) {
             value={state.text}
             onChange={(e) => setState({ kind: 'result', text: e.target.value })}
             rows={Math.min(10, state.text.split('\n').length + 1)}
-            className="w-full resize-y rounded-md border border-indigo-200 bg-white p-2 text-base leading-relaxed dark:border-indigo-800 dark:bg-slate-900"
+            className="border-coral-200 w-full resize-y rounded-md border bg-white p-2 text-base leading-relaxed"
           />
           <div className="flex flex-wrap gap-2">
             <button
               type="button"
-              className={`${btn} bg-indigo-600 text-white hover:bg-indigo-700`}
+              className={`${btn} bg-coral-600 hover:bg-coral-700 text-white`}
               onClick={() => {
                 onInsert(state.text.trim())
                 setState({ kind: 'idle' })
@@ -132,7 +132,7 @@ export function HandwritingToText({ strokes, onInsert }: Props) {
             </button>
             <button
               type="button"
-              className={`${btn} text-slate-700 hover:bg-slate-200 dark:text-slate-200 dark:hover:bg-slate-700`}
+              className={`${btn} text-stone-700 hover:bg-stone-200`}
               onClick={() => setState({ kind: 'idle' })}
             >
               ยกเลิก
