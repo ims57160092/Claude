@@ -11,7 +11,7 @@ interface Props {
 /** A sheet of planner paper. */
 export function Page({ title, heading, children }: Props) {
   return (
-    <section className="bg-paper rounded-[3px] px-4 pt-5 pb-6 shadow-[0_1px_2px_rgb(109_51_44/0.08),0_18px_40px_-24px_rgb(109_51_44/0.45)] sm:px-8 sm:pt-7 sm:pb-8">
+    <section className="rounded-[3px] bg-paper px-4 pt-5 pb-6 shadow-[0_1px_2px_rgb(109_51_44/0.08),0_18px_40px_-24px_rgb(109_51_44/0.45)] sm:px-8 sm:pt-7 sm:pb-8">
       <header className="mb-5 flex flex-wrap items-end justify-between gap-x-6 gap-y-1">
         <p
           aria-hidden

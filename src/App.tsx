@@ -69,8 +69,8 @@ function App() {
     'flex size-10 items-center justify-center rounded-full bg-white/70 text-xl text-stone-700 transition hover:bg-white focus-visible:outline-2 focus-visible:outline-coral-600'
 
   return (
-    <div className="bg-blush min-h-screen font-sans text-stone-900">
-      <header className="bg-blush/90 sticky top-[env(safe-area-inset-top,0px)] z-10 backdrop-blur">
+    <div className="min-h-screen bg-blush font-sans text-stone-900">
+      <header className="sticky top-[env(safe-area-inset-top,0px)] z-10 bg-blush/90 backdrop-blur">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-x-5 gap-y-2 px-4 py-3">
           <span className="font-script text-3xl leading-none text-stone-900">
             Planner
@@ -86,7 +86,7 @@ function App() {
             </button>
             <button
               type="button"
-              className="focus-visible:outline-coral-600 h-10 rounded-full bg-white/70 px-4 text-sm font-medium text-stone-800 transition hover:bg-white focus-visible:outline-2"
+              className="h-10 rounded-full bg-white/70 px-4 text-sm font-medium text-stone-800 transition hover:bg-white focus-visible:outline-2 focus-visible:outline-coral-600"
               onClick={() => setDate(todayKey())}
             >
               วันนี้
@@ -112,9 +112,9 @@ function App() {
                   type="button"
                   aria-pressed={view === v}
                   onClick={() => setView(v)}
-                  className={`focus-visible:outline-coral-600 rounded-full px-4 py-1.5 text-sm font-medium transition focus-visible:outline-2 ${
+                  className={`rounded-full px-4 py-1.5 text-sm font-medium transition focus-visible:outline-2 focus-visible:outline-coral-600 ${
                     view === v
-                      ? 'text-coral-700 bg-white shadow-sm'
+                      ? 'bg-white text-coral-700 shadow-sm'
                       : 'text-stone-700 hover:bg-white/60'
                   }`}
                 >

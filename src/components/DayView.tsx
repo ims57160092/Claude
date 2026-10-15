@@ -49,7 +49,7 @@ export function DayView({ date }: { date: DateKey }) {
                   update((e) => ({ ...e, text }))
                 }}
                 placeholder="พิมพ์โน้ต หรือเขียนด้วย Apple Pencil (Scribble) ในช่องนี้ก็ได้"
-                className="ruled focus-visible:ring-coral-200 min-h-64 w-full resize-y bg-transparent px-1 text-base text-stone-800 placeholder:text-stone-400 focus:outline-none focus-visible:ring-2"
+                className="ruled min-h-64 w-full resize-y bg-transparent px-1 text-base text-stone-800 placeholder:text-stone-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-coral-200"
               />
             </section>
           </div>

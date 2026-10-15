@@ -28,11 +28,11 @@ export function MonthView({
   return (
     <Page title="Monthly plan" heading={formatMonth(focus)}>
       <div className="overflow-hidden rounded-sm border border-stone-200">
-        <div className="bg-coral-100 grid grid-cols-7">
+        <div className="grid grid-cols-7 bg-coral-100">
           {WEEKDAYS.map((w, i) => (
             <div
               key={w}
-              className={`text-coral-800 py-1.5 text-center ${LABEL_WORD} ${i >= 5 ? 'text-coral-600' : ''}`}
+              className={`py-1.5 text-center text-coral-800 ${LABEL_WORD} ${i >= 5 ? 'text-coral-600' : ''}`}
             >
               {w}
             </div>
@@ -51,7 +51,7 @@ export function MonthView({
                 type="button"
                 onClick={() => onOpenDay(key)}
                 aria-label={`${d.getDate()} ${tasks.length ? `งาน ${tasks.length} รายการ` : ''}`}
-                className={`hover:bg-coral-50 focus-visible:outline-coral-500 flex min-h-20 min-w-0 flex-col gap-1 border-t border-r border-stone-200 p-1.5 text-left transition focus-visible:outline-2 focus-visible:-outline-offset-2 sm:min-h-28 [&:nth-child(7n)]:border-r-0 ${
+                className={`flex min-h-20 min-w-0 flex-col gap-1 border-t border-r border-stone-200 p-1.5 text-left transition hover:bg-coral-50 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-coral-500 sm:min-h-28 [&:nth-child(7n)]:border-r-0 ${
                   inMonth ? 'bg-white' : 'bg-stone-50 text-stone-300'
                 }`}
               >
@@ -67,7 +67,7 @@ export function MonthView({
                   </span>
                   {entry && entry.strokes.length > 0 && (
                     <span
-                      className="text-coral-400 text-xs"
+                      className="text-xs text-coral-400"
                       title="มีลายมือ"
                       aria-hidden
                     >
@@ -79,7 +79,7 @@ export function MonthView({
                   {tasks.slice(0, 3).map((t) => (
                     <span
                       key={t.id}
-                      className={`bg-coral-100 truncate rounded-sm px-1.5 text-xs ${t.done ? 'text-stone-400 line-through' : 'text-coral-900'}`}
+                      className={`truncate rounded-sm bg-coral-100 px-1.5 text-xs ${t.done ? 'text-stone-400 line-through' : 'text-coral-900'}`}
                     >
                       {t.text}
                     </span>
@@ -91,7 +91,7 @@ export function MonthView({
                   )}
                 </span>
                 {open > 0 && (
-                  <span className="text-coral-700 mt-auto text-xs sm:hidden">
+                  <span className="mt-auto text-xs text-coral-700 sm:hidden">
                     {open} งาน
                   </span>
                 )}

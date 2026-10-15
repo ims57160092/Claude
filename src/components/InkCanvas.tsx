@@ -350,7 +350,7 @@ export function InkCanvas({ strokes, onChange }: Props) {
               onClick={() =>
                 tool === 'pen' ? setPenColor(c) : setHighlightColor(c)
               }
-              className={`focus-visible:outline-coral-500 size-7 rounded-full border-2 transition focus-visible:outline-2 ${
+              className={`size-7 rounded-full border-2 transition focus-visible:outline-2 focus-visible:outline-coral-500 ${
                 activeColor === c
                   ? 'border-coral-600 ring-2 ring-white'
                   : 'border-transparent'
@@ -403,7 +403,7 @@ export function InkCanvas({ strokes, onChange }: Props) {
           <input
             id="finger-draw"
             type="checkbox"
-            className="accent-coral-600 size-4"
+            className="size-4 accent-coral-600"
             checked={fingerDraws}
             onChange={(e) => setFingerDraws(e.target.checked)}
           />

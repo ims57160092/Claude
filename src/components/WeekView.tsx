@@ -52,7 +52,7 @@ export function WeekView({
                 type="button"
                 onClick={() => onOpenDay(key)}
                 aria-label={`เปิด ${DAY_NAMES[i]} ${formatShort(d)}`}
-                className={`focus-visible:outline-coral-500 flex items-baseline justify-between gap-2 rounded-t-sm px-3 py-1.5 text-left transition focus-visible:outline-2 ${
+                className={`flex items-baseline justify-between gap-2 rounded-t-sm px-3 py-1.5 text-left transition focus-visible:outline-2 focus-visible:outline-coral-500 ${
                   isToday
                     ? 'bg-coral-400 text-white'
                     : 'bg-coral-100 text-coral-800 hover:bg-coral-200'
@@ -87,7 +87,7 @@ export function WeekView({
                           className={`min-w-0 break-words ${t.done ? 'text-stone-400 line-through' : 'text-stone-800'}`}
                         >
                           {t.time && (
-                            <span className="text-coral-700 mr-1 font-medium tabular-nums">
+                            <span className="mr-1 font-medium text-coral-700 tabular-nums">
                               {t.time}
                             </span>
                           )}
@@ -114,7 +114,7 @@ export function WeekView({
                   <button
                     type="button"
                     onClick={() => onOpenDay(key)}
-                    className="hover:border-coral-300 hover:text-coral-700 mt-auto rounded-sm border border-dashed border-stone-300 py-2 text-sm text-stone-400 transition"
+                    className="mt-auto rounded-sm border border-dashed border-stone-300 py-2 text-sm text-stone-400 transition hover:border-coral-300 hover:text-coral-700"
                   >
                     + เพิ่มงานหรือโน้ต
                   </button>
@@ -124,14 +124,14 @@ export function WeekView({
           )
         })}
         <aside aria-label="สรุปสัปดาห์" className="flex min-w-0 flex-col">
-          <div className="bg-coral-100 text-coral-800 rounded-t-sm px-3 py-1.5">
+          <div className="rounded-t-sm bg-coral-100 px-3 py-1.5 text-coral-800">
             <span className={LABEL_WORD}>This week</span>
           </div>
-          <div className="bg-coral-50 flex min-h-44 flex-1 flex-col justify-center gap-3 rounded-b-sm p-4">
+          <div className="flex min-h-44 flex-1 flex-col justify-center gap-3 rounded-b-sm bg-coral-50 p-4">
             {allTasks.length ? (
               <>
                 <p className="text-stone-700">
-                  <span className="font-script text-coral-600 text-4xl">
+                  <span className="font-script text-4xl text-coral-600">
                     {done}
                   </span>
                   <span className="text-stone-500">
@@ -148,7 +148,7 @@ export function WeekView({
                   className="h-2 overflow-hidden rounded-full bg-white"
                 >
                   <div
-                    className="bg-coral-400 h-full rounded-full"
+                    className="h-full rounded-full bg-coral-400"
                     style={{ width: `${(done / allTasks.length) * 100}%` }}
                   />
                 </div>

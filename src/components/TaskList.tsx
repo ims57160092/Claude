@@ -40,7 +40,7 @@ export function TaskList({ tasks, onChange }: Props) {
               onChange={(e) => patch(t.id, { done: e.target.checked })}
             />
             {t.time && (
-              <span className="text-coral-700 shrink-0 text-sm font-medium tabular-nums">
+              <span className="shrink-0 text-sm font-medium text-coral-700 tabular-nums">
                 {t.time}
               </span>
             )}
@@ -53,7 +53,7 @@ export function TaskList({ tasks, onChange }: Props) {
             <button
               type="button"
               aria-label={`ลบ ${t.text}`}
-              className="hover:bg-coral-50 hover:text-coral-700 focus-visible:outline-coral-500 shrink-0 rounded-full px-2 py-1 text-sm text-stone-400 opacity-60 transition group-hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-2"
+              className="shrink-0 rounded-full px-2 py-1 text-sm text-stone-400 opacity-60 transition group-hover:opacity-100 hover:bg-coral-50 hover:text-coral-700 focus-visible:opacity-100 focus-visible:outline-2 focus-visible:outline-coral-500"
               onClick={() => onChange(tasks.filter((x) => x.id !== t.id))}
             >
               ลบ
@@ -67,14 +67,29 @@ export function TaskList({ tasks, onChange }: Props) {
         )}
       </ul>
       <form onSubmit={add} className="mt-2 flex flex-wrap gap-2">
-        <input
-          id="new-task-time"
-          type="time"
-          aria-label="เวลา (ไม่บังคับ)"
-          value={time}
-          onChange={(e) => setTime(e.target.value)}
-          className={`${FIELD} px-2`}
-        />
+        <div className="relative flex">
+          <input
+            id="new-task-time"
+            type="time"
+            aria-label="เวลา (ไม่บังคับ)"
+            value={time}
+            onChange={(e) => setTime(e.target.value)}
+            className={`${FIELD} px-2 ${time ? 'pr-9' : ''}`}
+          />
+          {/* iPad Safari's own Reset puts the time back to the field's default
+              value, which React keeps equal to the current time, so it looks
+              like it does nothing. This clears the time for real. */}
+          {time && (
+            <button
+              type="button"
+              aria-label="ล้างเวลา"
+              onClick={() => setTime('')}
+              className="absolute inset-y-0 right-1 my-auto flex size-7 items-center justify-center rounded-full text-lg leading-none text-stone-400 transition hover:bg-coral-50 hover:text-coral-700 focus-visible:outline-2 focus-visible:outline-coral-500"
+            >
+              ×
+            </button>
+          )}
+        </div>
         <input
           id="new-task-text"
           type="text"

@@ -45,6 +45,29 @@ describe('App', () => {
     expect(fireEvent.touchMove(canvas)).toBe(false)
   })
 
+  it('clears the time of a new task with its own button', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+    await user.click(screen.getByRole('button', { name: 'วัน' }))
+    const time = await screen.findByLabelText('เวลา (ไม่บังคับ)')
+    expect(
+      screen.queryByRole('button', { name: 'ล้างเวลา' }),
+    ).not.toBeInTheDocument()
+
+    fireEvent.change(time, { target: { value: '09:30' } })
+    await user.click(screen.getByRole('button', { name: 'ล้างเวลา' }))
+    expect(time).toHaveValue('')
+
+    await user.type(
+      screen.getByRole('textbox', { name: 'งานใหม่' }),
+      'ไม่มีเวลา',
+    )
+    await user.click(screen.getByRole('button', { name: 'เพิ่ม' }))
+    expect(
+      screen.getByLabelText('ไม่มีเวลา').closest('li'),
+    ).not.toHaveTextContent('09:30')
+  })
+
   it('opens a day from the month view', async () => {
     const user = userEvent.setup()
     render(<App />)
