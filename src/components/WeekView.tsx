@@ -7,7 +7,7 @@ import {
   weekDays,
   type DateKey,
 } from '../lib/date'
-import { useEntries } from '../lib/hooks'
+import { useEntries, useHolidays } from '../lib/hooks'
 import { saveEntry } from '../lib/storage'
 import { summarize } from '../lib/summary'
 import { sortTasks } from '../lib/tasks'
@@ -39,6 +39,7 @@ export function WeekView({
   const keys = days.map(toKey)
   const entries = useEntries(keys[0], keys[6])
   const today = todayKey()
+  const holidays = useHolidays()
 
   return (
     <Page
@@ -53,6 +54,7 @@ export function WeekView({
           const key = keys[i]
           const entry = entries.get(key)
           const isToday = key === today
+          const holiday = holidays.get(key)
           return (
             <article key={key} className="flex min-w-0 flex-col">
               <button
@@ -69,6 +71,14 @@ export function WeekView({
                 <span className="text-sm font-medium">{formatShort(d)}</span>
               </button>
               <div className="flex min-h-44 flex-1 flex-col gap-2 rounded-b-sm bg-stone-100 p-3">
+                {holiday && (
+                  <p className="self-start rounded-full bg-white px-2.5 py-0.5 text-xs font-medium text-coral-700">
+                    {holiday.name}
+                    {holiday.note && (
+                      <span className="text-stone-500"> · {holiday.note}</span>
+                    )}
+                  </p>
+                )}
                 <ul className="flex flex-col gap-1.5 text-sm">
                   {entry &&
                     sortTasks(entry.tasks).map((t) => (

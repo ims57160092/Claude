@@ -1,4 +1,5 @@
 import type { DateKey } from './date'
+import { DEFAULT_BANK_HOLIDAYS, parseHoliday, type Holiday } from './holidays'
 
 export interface Task {
   id: string
@@ -45,22 +46,70 @@ export function newId(): string {
 
 const DB_NAME = 'planner'
 const STORE = 'days'
+const HOLIDAY_STORE = 'holidays'
+const META_STORE = 'meta'
+const SEEDED_YEARS = 'seededHolidayYears'
 let dbPromise: Promise<IDBDatabase> | null = null
 const listeners = new Set<() => void>()
 
 function openDb(): Promise<IDBDatabase> {
   dbPromise ??= new Promise((resolve, reject) => {
-    const req = indexedDB.open(DB_NAME, 1)
+    const req = indexedDB.open(DB_NAME, 2)
     req.onupgradeneeded = () => {
-      req.result.createObjectStore(STORE, { keyPath: 'date' })
+      const db = req.result
+      if (!db.objectStoreNames.contains(STORE)) {
+        db.createObjectStore(STORE, { keyPath: 'date' })
+      }
+      if (!db.objectStoreNames.contains(HOLIDAY_STORE)) {
+        db.createObjectStore(HOLIDAY_STORE, { keyPath: 'date' })
+      }
+      if (!db.objectStoreNames.contains(META_STORE)) {
+        db.createObjectStore(META_STORE, { keyPath: 'key' })
+      }
     }
-    req.onsuccess = () => resolve(req.result)
+    req.onsuccess = () =>
+      seedHolidays(req.result).then(() => resolve(req.result), reject)
     req.onerror = () => {
       dbPromise = null
       reject(req.error)
     }
   })
   return dbPromise
+}
+
+/** Years in `defaults` that have not been added to the holiday list yet. */
+export function yearsToSeed(
+  defaults: readonly Holiday[],
+  seeded: readonly number[],
+): number[] {
+  const years = new Set(defaults.map((h) => Number(h.date.slice(0, 4))))
+  return [...years].filter((y) => !seeded.includes(y)).sort()
+}
+
+/**
+ * Adds each year of announced bank holidays the first time the app sees it,
+ * e.g. after an update that ships a new year. A year is added only once, so
+ * days the user deleted do not come back.
+ */
+function seedHolidays(db: IDBDatabase): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction([HOLIDAY_STORE, META_STORE], 'readwrite')
+    const meta = tx.objectStore(META_STORE)
+    const req = meta.get(SEEDED_YEARS)
+    req.onsuccess = () => {
+      const seeded: number[] = req.result?.years ?? []
+      const years = yearsToSeed(DEFAULT_BANK_HOLIDAYS, seeded)
+      if (!years.length) return
+      const holidays = tx.objectStore(HOLIDAY_STORE)
+      for (const h of DEFAULT_BANK_HOLIDAYS) {
+        if (years.includes(Number(h.date.slice(0, 4)))) holidays.put(h)
+      }
+      meta.put({ key: SEEDED_YEARS, years: [...seeded, ...years] })
+    }
+    tx.oncomplete = () => resolve()
+    tx.onerror = () => reject(tx.error)
+    tx.onabort = () => reject(tx.error)
+  })
 }
 
 /** Drops the cached connection; tests call this after swapping indexedDB. */
@@ -71,11 +120,12 @@ export function resetConnection(): void {
 async function transact<T>(
   mode: IDBTransactionMode,
   fn: (store: IDBObjectStore) => IDBRequest<T> | void,
+  storeName: string = STORE,
 ): Promise<T> {
   const db = await openDb()
   return new Promise((resolve, reject) => {
-    const tx = db.transaction(STORE, mode)
-    const req = fn(tx.objectStore(STORE))
+    const tx = db.transaction(storeName, mode)
+    const req = fn(tx.objectStore(storeName))
     tx.oncomplete = () => resolve(req ? req.result : (undefined as T))
     tx.onerror = () => reject(tx.error)
     tx.onabort = () => reject(tx.error)
@@ -154,11 +204,40 @@ function parseEntry(x: unknown): DayEntry | null {
   }
 }
 
+export function getHolidays(): Promise<Holiday[]> {
+  return transact<Holiday[]>('readonly', (s) => s.getAll(), HOLIDAY_STORE)
+}
+
+/** Adds a holiday, replacing any on the same date. */
+export async function saveHoliday(holiday: Holiday): Promise<void> {
+  await transact('readwrite', (s) => void s.put(holiday), HOLIDAY_STORE)
+  notify()
+}
+
+export async function deleteHoliday(date: DateKey): Promise<void> {
+  await transact('readwrite', (s) => void s.delete(date), HOLIDAY_STORE)
+  notify()
+}
+
+/** Puts the announced bank holidays back, keeping the user's own. */
+export async function restoreDefaultHolidays(): Promise<void> {
+  await transact(
+    'readwrite',
+    (s) => {
+      for (const h of DEFAULT_BANK_HOLIDAYS) s.put(h)
+    },
+    HOLIDAY_STORE,
+  )
+  notify()
+}
+
 export interface Backup {
   app: 'planner'
   version: 1
   exportedAt: string
   entries: DayEntry[]
+  /** Added later; older backups have none. */
+  holidays?: Holiday[]
 }
 
 export async function exportBackup(): Promise<Backup> {
@@ -167,6 +246,7 @@ export async function exportBackup(): Promise<Backup> {
     version: 1,
     exportedAt: new Date().toISOString(),
     entries: await getAllEntries(),
+    holidays: await getHolidays(),
   }
 }
 
@@ -185,6 +265,18 @@ export async function importBackup(data: unknown): Promise<number> {
   await transact('readwrite', (s) => {
     for (const e of entries) s.put(e)
   })
+  if (Array.isArray(data.holidays)) {
+    const holidays = data.holidays
+      .map(parseHoliday)
+      .filter((h): h is Holiday => h !== null)
+    await transact(
+      'readwrite',
+      (s) => {
+        for (const h of holidays) s.put(h)
+      },
+      HOLIDAY_STORE,
+    )
+  }
   notify()
   return entries.length
 }

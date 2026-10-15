@@ -11,7 +11,7 @@ import {
   todayKey,
   type DateKey,
 } from '../lib/date'
-import { useEntries } from '../lib/hooks'
+import { useEntries, useHolidays } from '../lib/hooks'
 import { LABEL_WORD } from './styles'
 
 export type PickMode = 'day' | 'week' | 'month'
@@ -99,6 +99,7 @@ function DaysLevel({
 }: DaysProps) {
   const days = monthGrid(cursor)
   const entries = useEntries(toKey(days[0]), toKey(days[days.length - 1]))
+  const holidays = useHolidays()
   const selectedKey = toKey(selected)
   const selectedWeek = toKey(startOfWeek(selected))
   const shift = (n: number) =>
@@ -151,6 +152,7 @@ function DaysLevel({
           const inMonth = d.getMonth() === cursor.getMonth()
           const entry = entries.get(key)
           const hasContent = !!entry
+          const holiday = holidays.get(key)
           const inSelectedWeek =
             mode === 'week' && toKey(startOfWeek(d)) === selectedWeek
           const isSelected = mode === 'day' && key === selectedKey
@@ -168,6 +170,7 @@ function DaysLevel({
                 type="button"
                 onClick={() => onPick(key)}
                 aria-label={formatLong(d)}
+                title={holiday?.name}
                 aria-pressed={isSelected || inSelectedWeek}
                 className={`relative flex size-10 flex-col items-center justify-center rounded-full text-sm tabular-nums transition focus-visible:outline-2 focus-visible:outline-coral-500 ${
                   isSelected
@@ -175,7 +178,9 @@ function DaysLevel({
                     : key === today
                       ? 'font-semibold text-coral-700 ring-2 ring-coral-300 ring-inset hover:bg-coral-50'
                       : inMonth
-                        ? 'text-stone-800 hover:bg-coral-50'
+                        ? holiday
+                          ? 'font-semibold text-coral-600 hover:bg-coral-50'
+                          : 'text-stone-800 hover:bg-coral-50'
                         : 'text-stone-300 hover:bg-coral-50'
                 }`}
               >

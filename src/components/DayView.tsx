@@ -1,4 +1,4 @@
-import { useDayEntry } from '../lib/hooks'
+import { useDayEntry, useHolidays } from '../lib/hooks'
 import { formatLong, fromKey, type DateKey } from '../lib/date'
 import { HandwritingToText } from './HandwritingToText'
 import { InkCanvas } from './InkCanvas'
@@ -23,6 +23,7 @@ export function DayView({
   onPickDate: (d: DateKey) => void
 }) {
   const [entry, update] = useDayEntry(date)
+  const holiday = useHolidays().get(date)
 
   return (
     <Page
@@ -32,6 +33,15 @@ export function DayView({
       pickMode="day"
       onPickDate={onPickDate}
     >
+      {holiday && (
+        <p className="mb-5 flex flex-wrap items-baseline gap-x-2 rounded-sm bg-coral-50 px-3 py-2 text-coral-800">
+          <span className={LABEL_WORD}>Bank holiday</span>
+          <span className="font-medium">{holiday.name}</span>
+          {holiday.note && (
+            <span className="text-sm text-stone-500">{holiday.note}</span>
+          )}
+        </p>
+      )}
       {!entry ? (
         <p className="py-12 text-center text-stone-500">กำลังเปิด…</p>
       ) : (

@@ -6,11 +6,13 @@ import {
   todayKey,
   type DateKey,
 } from '../lib/date'
-import { useEntries } from '../lib/hooks'
+import { useState } from 'react'
+import { useEntries, useHolidays } from '../lib/hooks'
 import { summarize } from '../lib/summary'
 import { sortTasks } from '../lib/tasks'
+import { HolidayManager } from './HolidayManager'
 import { Page } from './Page'
-import { LABEL_WORD } from './styles'
+import { LABEL_WORD, QUIET_BUTTON } from './styles'
 import { SummaryCard } from './SummaryCard'
 
 const WEEKDAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
@@ -28,6 +30,8 @@ export function MonthView({
   const days = monthGrid(focus)
   const entries = useEntries(toKey(days[0]), toKey(days[days.length - 1]))
   const today = todayKey()
+  const holidays = useHolidays()
+  const [managing, setManaging] = useState(false)
   // Only this month's days count, not the neighbouring days the grid shows.
   const monthPrefix = date.slice(0, 7)
   const summary = summarize(
@@ -42,6 +46,15 @@ export function MonthView({
       pickMode="month"
       onPickDate={onPickDate}
     >
+      <div className="mb-3 flex justify-end">
+        <button
+          type="button"
+          onClick={() => setManaging(true)}
+          className={`${QUIET_BUTTON} border border-coral-200`}
+        >
+          วันหยุดธนาคาร
+        </button>
+      </div>
       <div className="overflow-hidden rounded-sm border border-stone-200">
         <div className="grid grid-cols-7 bg-coral-100">
           {WEEKDAYS.map((w, i) => (
@@ -60,12 +73,19 @@ export function MonthView({
             const inMonth = d.getMonth() === focus.getMonth()
             const tasks = entry ? sortTasks(entry.tasks) : []
             const open = tasks.filter((t) => !t.done).length
+            const holiday = holidays.get(key)
             return (
               <button
                 key={key}
                 type="button"
                 onClick={() => onOpenDay(key)}
-                aria-label={`${d.getDate()} ${tasks.length ? `งาน ${tasks.length} รายการ` : ''}`}
+                aria-label={[
+                  d.getDate(),
+                  holiday?.name,
+                  tasks.length ? `งาน ${tasks.length} รายการ` : '',
+                ]
+                  .filter(Boolean)
+                  .join(' ')}
                 className={`flex min-h-20 min-w-0 flex-col gap-1 border-t border-r border-stone-200 p-1.5 text-left transition hover:bg-coral-50 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-coral-500 sm:min-h-28 [&:nth-child(7n)]:border-r-0 ${
                   inMonth ? 'bg-white' : 'bg-stone-50 text-stone-300'
                 }`}
@@ -75,7 +95,9 @@ export function MonthView({
                     className={`flex size-7 items-center justify-center rounded-full text-sm tabular-nums ${
                       key === today
                         ? 'bg-coral-500 font-semibold text-white'
-                        : ''
+                        : holiday && inMonth
+                          ? 'font-semibold text-coral-600'
+                          : ''
                     }`}
                   >
                     {d.getDate()}
@@ -90,6 +112,18 @@ export function MonthView({
                     </span>
                   )}
                 </span>
+                {holiday && (
+                  <span
+                    title={
+                      holiday.note
+                        ? `${holiday.name} (${holiday.note})`
+                        : holiday.name
+                    }
+                    className={`hidden truncate text-[11px] leading-tight font-medium sm:block ${inMonth ? 'text-coral-600' : 'text-stone-300'}`}
+                  >
+                    {holiday.name}
+                  </span>
+                )}
                 <span className="hidden flex-col gap-0.5 sm:flex">
                   {tasks.slice(0, 3).map((t) => (
                     <span
@@ -122,6 +156,12 @@ export function MonthView({
         empty="ยังไม่มีงานในเดือนนี้ แตะวันที่ในปฏิทินเพื่อเพิ่มงาน"
         className="mt-5"
       />
+      {managing && (
+        <HolidayManager
+          year={focus.getFullYear()}
+          onClose={() => setManaging(false)}
+        />
+      )}
     </Page>
   )
 }
