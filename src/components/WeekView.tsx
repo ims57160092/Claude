@@ -29,9 +29,11 @@ const DAY_NAMES = [
 export function WeekView({
   date,
   onOpenDay,
+  onPickDate,
 }: {
   date: DateKey
   onOpenDay: (d: DateKey) => void
+  onPickDate: (d: DateKey) => void
 }) {
   const days = weekDays(fromKey(date))
   const keys = days.map(toKey)
@@ -39,7 +41,13 @@ export function WeekView({
   const today = todayKey()
 
   return (
-    <Page title="Weekly plan" heading={formatWeek(fromKey(date))}>
+    <Page
+      title="Weekly plan"
+      heading={formatWeek(fromKey(date))}
+      date={date}
+      pickMode="week"
+      onPickDate={onPickDate}
+    >
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {days.map((d, i) => {
           const key = keys[i]

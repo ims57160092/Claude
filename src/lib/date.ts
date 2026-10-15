@@ -71,11 +71,15 @@ const shortFmt = new Intl.DateTimeFormat('th-TH', {
   day: 'numeric',
   month: 'short',
 })
+const monthShortFmt = new Intl.DateTimeFormat('th-TH', { month: 'short' })
+const yearFmt = new Intl.DateTimeFormat('th-TH', { year: 'numeric' })
 const longFmt = new Intl.DateTimeFormat('th-TH', { dateStyle: 'full' })
 
 export const formatMonth = (d: Date) => monthFmt.format(d)
 export const formatShort = (d: Date) => shortFmt.format(d)
 export const formatLong = (d: Date) => longFmt.format(d)
+export const formatMonthShort = (d: Date) => monthShortFmt.format(d)
+export const formatYear = (d: Date) => yearFmt.format(d)
 
 export function formatWeek(d: Date): string {
   const days = weekDays(d)

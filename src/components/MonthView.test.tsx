@@ -27,7 +27,13 @@ describe('MonthView summary card', () => {
       text: 'ก.ย.',
     })
 
-    render(<MonthView date="2026-10-15" onOpenDay={() => {}} />)
+    render(
+      <MonthView
+        date="2026-10-15"
+        onOpenDay={() => {}}
+        onPickDate={() => {}}
+      />,
+    )
     const card = await screen.findByRole('complementary', {
       name: 'สรุปเดือนนี้',
     })
@@ -41,7 +47,13 @@ describe('MonthView summary card', () => {
   })
 
   it('invites adding tasks when the month is empty', async () => {
-    render(<MonthView date="2026-10-15" onOpenDay={() => {}} />)
+    render(
+      <MonthView
+        date="2026-10-15"
+        onOpenDay={() => {}}
+        onPickDate={() => {}}
+      />,
+    )
     const card = await screen.findByRole('complementary', {
       name: 'สรุปเดือนนี้',
     })

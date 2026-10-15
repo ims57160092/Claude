@@ -15,11 +15,23 @@ function Label({ id, word, thai }: { id: string; word: string; thai: string }) {
   )
 }
 
-export function DayView({ date }: { date: DateKey }) {
+export function DayView({
+  date,
+  onPickDate,
+}: {
+  date: DateKey
+  onPickDate: (d: DateKey) => void
+}) {
   const [entry, update] = useDayEntry(date)
 
   return (
-    <Page title="Daily plan" heading={formatLong(fromKey(date))}>
+    <Page
+      title="Daily plan"
+      heading={formatLong(fromKey(date))}
+      date={date}
+      pickMode="day"
+      onPickDate={onPickDate}
+    >
       {!entry ? (
         <p className="py-12 text-center text-stone-500">กำลังเปิด…</p>
       ) : (

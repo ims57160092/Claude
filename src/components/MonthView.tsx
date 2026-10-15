@@ -18,9 +18,11 @@ const WEEKDAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 export function MonthView({
   date,
   onOpenDay,
+  onPickDate,
 }: {
   date: DateKey
   onOpenDay: (d: DateKey) => void
+  onPickDate: (d: DateKey) => void
 }) {
   const focus = fromKey(date)
   const days = monthGrid(focus)
@@ -33,7 +35,13 @@ export function MonthView({
   )
 
   return (
-    <Page title="Monthly plan" heading={formatMonth(focus)}>
+    <Page
+      title="Monthly plan"
+      heading={formatMonth(focus)}
+      date={date}
+      pickMode="month"
+      onPickDate={onPickDate}
+    >
       <div className="overflow-hidden rounded-sm border border-stone-200">
         <div className="grid grid-cols-7 bg-coral-100">
           {WEEKDAYS.map((w, i) => (

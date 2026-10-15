@@ -33,7 +33,7 @@ afterEach(() => {
 describe('HandwritingToText', () => {
   it('is hidden outside a claude.ai Artifact', async () => {
     await saveEntry({ ...emptyEntry(DATE), strokes: [stroke] })
-    render(<DayView date={DATE} />)
+    render(<DayView date={DATE} onPickDate={() => {}} />)
     await screen.findByLabelText('หน้าเขียนด้วยลายมือ')
     expect(
       screen.queryByRole('button', { name: 'แปลงลายมือเป็นข้อความ' }),
@@ -43,7 +43,7 @@ describe('HandwritingToText', () => {
   it('is hidden when the Artifact cannot send images', async () => {
     installSample(vi.fn(), false)
     await saveEntry({ ...emptyEntry(DATE), strokes: [stroke] })
-    render(<DayView date={DATE} />)
+    render(<DayView date={DATE} onPickDate={() => {}} />)
     await screen.findByLabelText('หน้าเขียนด้วยลายมือ')
     await new Promise((r) => setTimeout(r, 0))
     expect(
@@ -60,7 +60,7 @@ describe('HandwritingToText', () => {
       strokes: [stroke],
     })
     const user = userEvent.setup()
-    render(<DayView date={DATE} />)
+    render(<DayView date={DATE} onPickDate={() => {}} />)
 
     await user.click(
       await screen.findByRole('button', { name: 'แปลงลายมือเป็นข้อความ' }),
@@ -86,7 +86,7 @@ describe('HandwritingToText', () => {
     installSample(vi.fn(async () => ({ lines: [] })))
     await saveEntry({ ...emptyEntry(DATE), strokes: [stroke] })
     const user = userEvent.setup()
-    render(<DayView date={DATE} />)
+    render(<DayView date={DATE} onPickDate={() => {}} />)
     await user.click(
       await screen.findByRole('button', { name: 'แปลงลายมือเป็นข้อความ' }),
     )
@@ -101,7 +101,7 @@ describe('HandwritingToText', () => {
     )
     await saveEntry({ ...emptyEntry(DATE), strokes: [stroke] })
     const user = userEvent.setup()
-    render(<DayView date={DATE} />)
+    render(<DayView date={DATE} onPickDate={() => {}} />)
     await user.click(
       await screen.findByRole('button', { name: 'แปลงลายมือเป็นข้อความ' }),
     )

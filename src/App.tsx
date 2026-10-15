@@ -127,9 +127,15 @@ function App() {
         </div>
       </header>
       <main className="mx-auto max-w-7xl px-4 pt-2 pb-10">
-        {view === 'month' && <MonthView date={date} onOpenDay={openDay} />}
-        {view === 'week' && <WeekView date={date} onOpenDay={openDay} />}
-        {view === 'day' && <DayView key={date} date={date} />}
+        {view === 'month' && (
+          <MonthView date={date} onOpenDay={openDay} onPickDate={setDate} />
+        )}
+        {view === 'week' && (
+          <WeekView date={date} onOpenDay={openDay} onPickDate={setDate} />
+        )}
+        {view === 'day' && (
+          <DayView key={date} date={date} onPickDate={setDate} />
+        )}
       </main>
       <div
         role="status"
