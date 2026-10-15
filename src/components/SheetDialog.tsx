@@ -1,4 +1,5 @@
 import { useEffect, useId, useRef, type ReactNode } from 'react'
+import { createPortal } from 'react-dom'
 import { formatYear } from '../lib/date'
 import { useDismiss } from '../lib/useDismiss'
 
@@ -8,16 +9,17 @@ const ARROW =
 interface Props {
   /** Script title, e.g. "Bank holidays". */
   title: string
-  /** The dialog's accessible heading, in Thai; the year is appended. */
+  /** The dialog's accessible heading, in Thai; the year is appended if given. */
   heading: string
-  year: number
-  onYearChange: (year: number) => void
+  /** With a year, a bar under the header steps between years. */
+  year?: number
+  onYearChange?: (year: number) => void
   onClose: () => void
   children: ReactNode
 }
 
 /**
- * A planner sheet over the page, for managing one year of something. Closes
+ * A planner sheet over the page, optionally stepping through years. Closes
  * on Escape, a tap outside or the × button, and starts with focus on ×.
  */
 export function SheetDialog({
@@ -31,11 +33,13 @@ export function SheetDialog({
   const panel = useDismiss(true, onClose)
   const closeButton = useRef<HTMLButtonElement>(null)
   const headingId = useId()
-  const yearLabel = formatYear(new Date(year, 0, 1))
+  const yearLabel = year === undefined ? '' : formatYear(new Date(year, 0, 1))
 
   useEffect(() => closeButton.current?.focus(), [])
 
-  return (
+  // Portal to <body>: an ancestor with backdrop-filter (the sticky header)
+  // would otherwise become the containing block and clip this overlay.
+  return createPortal(
     <div className="fixed inset-0 z-30 flex items-start justify-center overflow-y-auto bg-stone-900/30 px-4 py-[max(2rem,env(safe-area-inset-top))]">
       <div
         ref={panel}
@@ -53,7 +57,7 @@ export function SheetDialog({
               {title}
             </p>
             <h2 id={headingId} className="mt-1 text-sm text-stone-500">
-              {heading} {yearLabel}
+              {yearLabel ? `${heading} ${yearLabel}` : heading}
             </h2>
           </div>
           <button
@@ -66,27 +70,30 @@ export function SheetDialog({
             ×
           </button>
         </header>
-        <div className="mt-4 flex items-center justify-between bg-coral-100 px-6 py-1.5 text-coral-800">
-          <button
-            type="button"
-            aria-label="ปีก่อน"
-            className={ARROW}
-            onClick={() => onYearChange(year - 1)}
-          >
-            ‹
-          </button>
-          <span className="font-semibold">{yearLabel}</span>
-          <button
-            type="button"
-            aria-label="ปีถัดไป"
-            className={ARROW}
-            onClick={() => onYearChange(year + 1)}
-          >
-            ›
-          </button>
-        </div>
+        {year !== undefined && (
+          <div className="mt-4 flex items-center justify-between bg-coral-100 px-6 py-1.5 text-coral-800">
+            <button
+              type="button"
+              aria-label="ปีก่อน"
+              className={ARROW}
+              onClick={() => onYearChange?.(year - 1)}
+            >
+              ‹
+            </button>
+            <span className="font-semibold">{yearLabel}</span>
+            <button
+              type="button"
+              aria-label="ปีถัดไป"
+              className={ARROW}
+              onClick={() => onYearChange?.(year + 1)}
+            >
+              ›
+            </button>
+          </div>
+        )}
         {children}
       </div>
-    </div>
+    </div>,
+    document.body,
   )
 }

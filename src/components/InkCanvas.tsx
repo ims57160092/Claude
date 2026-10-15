@@ -1,6 +1,7 @@
 import {
   useCallback,
   useEffect,
+  useLayoutEffect,
   useRef,
   useState,
   type PointerEvent,
@@ -159,7 +160,8 @@ export function InkCanvas({ strokes, onChange }: Props) {
   // `touch-action: none`. Cancelling the touch events (which needs a
   // non-passive listener, so not React's onTouch*) stops it. Pointer events
   // still arrive, and a finger drag scrolls through onPointerMove instead.
-  useEffect(() => {
+  // A layout effect, so the listeners are in place before anything can touch.
+  useLayoutEffect(() => {
     const canvas = canvasRef.current
     if (!canvas) return
     const block = (e: TouchEvent) => {

@@ -122,7 +122,7 @@ function App() {
                 </button>
               ))}
             </div>
-            <BackupMenu onMessage={setMessage} />
+            <BackupMenu date={date} onMessage={setMessage} />
           </div>
         </div>
       </header>

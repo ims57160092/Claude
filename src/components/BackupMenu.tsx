@@ -1,28 +1,34 @@
-import { useRef, type ChangeEvent } from 'react'
+import { useRef, useState, type ChangeEvent } from 'react'
 import { exportBackup, importBackup } from '../lib/storage'
-import { todayKey } from '../lib/date'
+import { todayKey, type DateKey } from '../lib/date'
+import { SaveFileError, saveFile } from '../lib/saveFile'
+import { CalendarExport } from './CalendarExport'
 import { QUIET_BUTTON } from './styles'
 
 interface Props {
+  /** The date on screen, for "this month" in the calendar export. */
+  date: DateKey
   onMessage: (message: string) => void
 }
 
 /** Save all notes to a file, or restore them from one. */
-export function BackupMenu({ onMessage }: Props) {
+export function BackupMenu({ date, onMessage }: Props) {
   const fileRef = useRef<HTMLInputElement>(null)
+  const [exporting, setExporting] = useState(false)
 
   const download = async () => {
     const backup = await exportBackup()
-    const blob = new Blob([JSON.stringify(backup)], {
-      type: 'application/json',
-    })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `planner-${todayKey()}.json`
-    a.click()
-    setTimeout(() => URL.revokeObjectURL(url), 1000)
-    onMessage(`บันทึกไฟล์สำรอง ${backup.entries.length} วันแล้ว`)
+    try {
+      await saveFile(
+        `planner-${todayKey()}.json`,
+        JSON.stringify(backup),
+        'application/json',
+      )
+      onMessage(`บันทึกไฟล์สำรอง ${backup.entries.length} วันแล้ว`)
+    } catch (e) {
+      if (e instanceof SaveFileError && e.code === 'declined') return
+      onMessage('บันทึกไฟล์สำรองไม่สำเร็จ')
+    }
   }
 
   const restore = async (e: ChangeEvent<HTMLInputElement>) => {
@@ -45,6 +51,9 @@ export function BackupMenu({ onMessage }: Props) {
 
   return (
     <div className="flex items-center gap-1">
+      <button type="button" className={btn} onClick={() => setExporting(true)}>
+        ปฏิทิน Apple
+      </button>
       <button type="button" className={btn} onClick={() => void download()}>
         สำรองข้อมูล
       </button>
@@ -63,6 +72,13 @@ export function BackupMenu({ onMessage }: Props) {
         hidden
         onChange={(e) => void restore(e)}
       />
+      {exporting && (
+        <CalendarExport
+          date={date}
+          onMessage={onMessage}
+          onClose={() => setExporting(false)}
+        />
+      )}
     </div>
   )
 }
