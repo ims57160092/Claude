@@ -7,10 +7,12 @@ import {
   type DateKey,
 } from '../lib/date'
 import { useState } from 'react'
-import { useEntries, useHolidays } from '../lib/hooks'
+import { useEntries, useHolidays, useLeaves } from '../lib/hooks'
+import { leaveLabel } from '../lib/leave'
 import { summarize } from '../lib/summary'
 import { sortTasks } from '../lib/tasks'
 import { HolidayManager } from './HolidayManager'
+import { LeaveManager } from './LeaveManager'
 import { Page } from './Page'
 import { LABEL_WORD, QUIET_BUTTON } from './styles'
 import { SummaryCard } from './SummaryCard'
@@ -31,9 +33,13 @@ export function MonthView({
   const entries = useEntries(toKey(days[0]), toKey(days[days.length - 1]))
   const today = todayKey()
   const holidays = useHolidays()
-  const [managing, setManaging] = useState(false)
+  const leaves = useLeaves()
+  const [managing, setManaging] = useState<'holidays' | 'leave' | null>(null)
   // Only this month's days count, not the neighbouring days the grid shows.
   const monthPrefix = date.slice(0, 7)
+  const leaveDays = [...leaves.keys()].filter((d) =>
+    d.startsWith(monthPrefix),
+  ).length
   const summary = summarize(
     [...entries.values()].filter((e) => e.date.startsWith(monthPrefix)),
   )
@@ -46,10 +52,17 @@ export function MonthView({
       pickMode="month"
       onPickDate={onPickDate}
     >
-      <div className="mb-3 flex justify-end">
+      <div className="mb-3 flex justify-end gap-2">
         <button
           type="button"
-          onClick={() => setManaging(true)}
+          onClick={() => setManaging('leave')}
+          className={`${QUIET_BUTTON} border border-emerald-200 hover:bg-emerald-50`}
+        >
+          วันลา
+        </button>
+        <button
+          type="button"
+          onClick={() => setManaging('holidays')}
           className={`${QUIET_BUTTON} border border-coral-200`}
         >
           วันหยุดธนาคาร
@@ -74,6 +87,7 @@ export function MonthView({
             const tasks = entry ? sortTasks(entry.tasks) : []
             const open = tasks.filter((t) => !t.done).length
             const holiday = holidays.get(key)
+            const leave = leaves.get(key)
             return (
               <button
                 key={key}
@@ -82,6 +96,7 @@ export function MonthView({
                 aria-label={[
                   d.getDate(),
                   holiday?.name,
+                  leave && leaveLabel(leave.type),
                   tasks.length ? `งาน ${tasks.length} รายการ` : '',
                 ]
                   .filter(Boolean)
@@ -124,6 +139,17 @@ export function MonthView({
                     {holiday.name}
                   </span>
                 )}
+                {leave && (
+                  <span
+                    title={leave.note}
+                    className={`truncate rounded-sm px-1.5 text-[11px] leading-snug font-medium ${inMonth ? 'bg-emerald-100 text-emerald-800' : 'bg-stone-100 text-stone-400'}`}
+                  >
+                    <span className="sm:hidden">ลา</span>
+                    <span className="hidden sm:inline">
+                      {leaveLabel(leave.type)}
+                    </span>
+                  </span>
+                )}
                 <span className="hidden flex-col gap-0.5 sm:flex">
                   {tasks.slice(0, 3).map((t) => (
                     <span
@@ -153,13 +179,20 @@ export function MonthView({
         label="This month"
         name="สรุปเดือนนี้"
         summary={summary}
+        leaveDays={leaveDays}
         empty="ยังไม่มีงานในเดือนนี้ แตะวันที่ในปฏิทินเพื่อเพิ่มงาน"
         className="mt-5"
       />
-      {managing && (
+      {managing === 'holidays' && (
         <HolidayManager
           year={focus.getFullYear()}
-          onClose={() => setManaging(false)}
+          onClose={() => setManaging(null)}
+        />
+      )}
+      {managing === 'leave' && (
+        <LeaveManager
+          year={focus.getFullYear()}
+          onClose={() => setManaging(null)}
         />
       )}
     </Page>

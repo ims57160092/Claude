@@ -1,9 +1,13 @@
-import { useDayEntry, useHolidays } from '../lib/hooks'
+import { useState } from 'react'
+import { useDayEntry, useHolidays, useLeaves } from '../lib/hooks'
+import { leaveLabel } from '../lib/leave'
+import { deleteLeave } from '../lib/storage'
 import { formatLong, fromKey, type DateKey } from '../lib/date'
 import { HandwritingToText } from './HandwritingToText'
 import { InkCanvas } from './InkCanvas'
+import { LeaveManager } from './LeaveManager'
 import { Page } from './Page'
-import { LABEL_STRIP, LABEL_WORD } from './styles'
+import { LABEL_STRIP, LABEL_WORD, QUIET_BUTTON } from './styles'
 import { TaskList } from './TaskList'
 
 function Label({ id, word, thai }: { id: string; word: string; thai: string }) {
@@ -24,6 +28,8 @@ export function DayView({
 }) {
   const [entry, update] = useDayEntry(date)
   const holiday = useHolidays().get(date)
+  const leave = useLeaves().get(date)
+  const [booking, setBooking] = useState(false)
 
   return (
     <Page
@@ -41,6 +47,39 @@ export function DayView({
             <span className="text-sm text-stone-500">{holiday.note}</span>
           )}
         </p>
+      )}
+      {leave ? (
+        <p className="mb-5 flex flex-wrap items-center gap-x-2 gap-y-1 rounded-sm bg-emerald-50 px-3 py-2 text-emerald-800">
+          <span className={LABEL_WORD}>On leave</span>
+          <span className="font-medium">{leaveLabel(leave.type)}</span>
+          {leave.note && (
+            <span className="text-sm text-emerald-700">{leave.note}</span>
+          )}
+          <button
+            type="button"
+            onClick={() => void deleteLeave(date)}
+            className="ml-auto rounded-full px-3 py-1 text-sm text-emerald-800 transition hover:bg-emerald-100 focus-visible:outline-2 focus-visible:outline-emerald-600"
+          >
+            ยกเลิกวันลา
+          </button>
+        </p>
+      ) : (
+        <div className="-mt-2 mb-3 flex justify-end">
+          <button
+            type="button"
+            onClick={() => setBooking(true)}
+            className={`${QUIET_BUTTON} border border-emerald-200 hover:bg-emerald-50`}
+          >
+            ลงวันลา
+          </button>
+        </div>
+      )}
+      {booking && (
+        <LeaveManager
+          year={fromKey(date).getFullYear()}
+          initialDate={date}
+          onClose={() => setBooking(false)}
+        />
       )}
       {!entry ? (
         <p className="py-12 text-center text-stone-500">กำลังเปิด…</p>

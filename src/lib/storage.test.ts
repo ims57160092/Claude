@@ -123,3 +123,21 @@ describe('yearsToSeed', () => {
     expect(yearsToSeed(defaults, [2026, 2027])).toEqual([])
   })
 })
+
+describe('leave storage', () => {
+  it('saves, deletes and backs up leave days', async () => {
+    const { saveLeaves, deleteLeave, getLeaves } = await import('./storage')
+    await saveLeaves([
+      { date: '2026-11-02', type: 'vacation' },
+      { date: '2026-11-03', type: 'vacation', note: 'เที่ยว' },
+    ])
+    await deleteLeave('2026-11-02')
+    expect(await getLeaves()).toEqual([
+      { date: '2026-11-03', type: 'vacation', note: 'เที่ยว' },
+    ])
+    const backup = JSON.parse(JSON.stringify(await exportBackup()))
+    await deleteLeave('2026-11-03')
+    await importBackup(backup)
+    expect((await getLeaves()).map((l) => l.date)).toEqual(['2026-11-03'])
+  })
+})

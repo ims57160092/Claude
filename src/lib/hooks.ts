@@ -1,9 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { DateKey } from './date'
 import type { Holiday } from './holidays'
+import type { Leave } from './leave'
 import {
   emptyEntry,
   getHolidays,
+  getLeaves,
   getEntries,
   getEntry,
   saveEntry,
@@ -47,6 +49,25 @@ export function useHolidays(): Map<DateKey, Holiday> {
     }
   }, [])
   return holidays
+}
+
+/** Every leave day by date, kept up to date with adds and deletes. */
+export function useLeaves(): Map<DateKey, Leave> {
+  const [leaves, setLeaves] = useState(() => new Map<DateKey, Leave>())
+  useEffect(() => {
+    let cancelled = false
+    const load = () =>
+      getLeaves().then((list) => {
+        if (!cancelled) setLeaves(new Map(list.map((l) => [l.date, l])))
+      })
+    void load()
+    const unsubscribe = subscribe(load)
+    return () => {
+      cancelled = true
+      unsubscribe()
+    }
+  }, [])
+  return leaves
 }
 
 const SAVE_DELAY_MS = 400

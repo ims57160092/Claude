@@ -1,5 +1,6 @@
 import type { DateKey } from './date'
 import { DEFAULT_BANK_HOLIDAYS, parseHoliday, type Holiday } from './holidays'
+import { parseLeave, type Leave } from './leave'
 
 export interface Task {
   id: string
@@ -48,13 +49,14 @@ const DB_NAME = 'planner'
 const STORE = 'days'
 const HOLIDAY_STORE = 'holidays'
 const META_STORE = 'meta'
+const LEAVE_STORE = 'leaves'
 const SEEDED_YEARS = 'seededHolidayYears'
 let dbPromise: Promise<IDBDatabase> | null = null
 const listeners = new Set<() => void>()
 
 function openDb(): Promise<IDBDatabase> {
   dbPromise ??= new Promise((resolve, reject) => {
-    const req = indexedDB.open(DB_NAME, 2)
+    const req = indexedDB.open(DB_NAME, 3)
     req.onupgradeneeded = () => {
       const db = req.result
       if (!db.objectStoreNames.contains(STORE)) {
@@ -65,6 +67,9 @@ function openDb(): Promise<IDBDatabase> {
       }
       if (!db.objectStoreNames.contains(META_STORE)) {
         db.createObjectStore(META_STORE, { keyPath: 'key' })
+      }
+      if (!db.objectStoreNames.contains(LEAVE_STORE)) {
+        db.createObjectStore(LEAVE_STORE, { keyPath: 'date' })
       }
     }
     req.onsuccess = () =>
@@ -231,6 +236,27 @@ export async function restoreDefaultHolidays(): Promise<void> {
   notify()
 }
 
+export function getLeaves(): Promise<Leave[]> {
+  return transact<Leave[]>('readonly', (s) => s.getAll(), LEAVE_STORE)
+}
+
+/** Adds leave days, replacing any already on those dates. */
+export async function saveLeaves(leaves: readonly Leave[]): Promise<void> {
+  await transact(
+    'readwrite',
+    (s) => {
+      for (const l of leaves) s.put(l)
+    },
+    LEAVE_STORE,
+  )
+  notify()
+}
+
+export async function deleteLeave(date: DateKey): Promise<void> {
+  await transact('readwrite', (s) => void s.delete(date), LEAVE_STORE)
+  notify()
+}
+
 export interface Backup {
   app: 'planner'
   version: 1
@@ -238,6 +264,7 @@ export interface Backup {
   entries: DayEntry[]
   /** Added later; older backups have none. */
   holidays?: Holiday[]
+  leaves?: Leave[]
 }
 
 export async function exportBackup(): Promise<Backup> {
@@ -247,6 +274,7 @@ export async function exportBackup(): Promise<Backup> {
     exportedAt: new Date().toISOString(),
     entries: await getAllEntries(),
     holidays: await getHolidays(),
+    leaves: await getLeaves(),
   }
 }
 
@@ -275,6 +303,11 @@ export async function importBackup(data: unknown): Promise<number> {
         for (const h of holidays) s.put(h)
       },
       HOLIDAY_STORE,
+    )
+  }
+  if (Array.isArray(data.leaves)) {
+    await saveLeaves(
+      data.leaves.map(parseLeave).filter((l): l is Leave => l !== null),
     )
   }
   notify()

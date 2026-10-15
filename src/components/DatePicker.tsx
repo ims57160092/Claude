@@ -11,7 +11,7 @@ import {
   todayKey,
   type DateKey,
 } from '../lib/date'
-import { useEntries, useHolidays } from '../lib/hooks'
+import { useEntries, useHolidays, useLeaves } from '../lib/hooks'
 import { LABEL_WORD } from './styles'
 
 export type PickMode = 'day' | 'week' | 'month'
@@ -100,6 +100,7 @@ function DaysLevel({
   const days = monthGrid(cursor)
   const entries = useEntries(toKey(days[0]), toKey(days[days.length - 1]))
   const holidays = useHolidays()
+  const leaves = useLeaves()
   const selectedKey = toKey(selected)
   const selectedWeek = toKey(startOfWeek(selected))
   const shift = (n: number) =>
@@ -180,7 +181,9 @@ function DaysLevel({
                       : inMonth
                         ? holiday
                           ? 'font-semibold text-coral-600 hover:bg-coral-50'
-                          : 'text-stone-800 hover:bg-coral-50'
+                          : leaves.has(key)
+                            ? 'bg-emerald-50 font-semibold text-emerald-700 hover:bg-emerald-100'
+                            : 'text-stone-800 hover:bg-coral-50'
                         : 'text-stone-300 hover:bg-coral-50'
                 }`}
               >

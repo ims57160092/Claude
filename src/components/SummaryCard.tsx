@@ -9,6 +9,8 @@ interface Props {
   summary: Summary
   /** Shown when there are no tasks yet. */
   empty: string
+  /** Leave days in the same period; omitted means don't show the count. */
+  leaveDays?: number
   className?: string
 }
 
@@ -18,6 +20,7 @@ export function SummaryCard({
   name,
   summary,
   empty,
+  leaveDays,
   className = '',
 }: Props) {
   const { total, done, open, daysWithNotes } = summary
@@ -65,6 +68,14 @@ export function SummaryCard({
               {daysWithNotes}
             </dd>
           </div>
+          {leaveDays !== undefined && (
+            <div className="flex items-baseline gap-1.5">
+              <dt className="text-stone-500">วันลา</dt>
+              <dd className="font-semibold text-emerald-800 tabular-nums">
+                {leaveDays}
+              </dd>
+            </div>
+          )}
         </dl>
       </div>
     </aside>

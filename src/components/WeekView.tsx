@@ -7,7 +7,8 @@ import {
   weekDays,
   type DateKey,
 } from '../lib/date'
-import { useEntries, useHolidays } from '../lib/hooks'
+import { useEntries, useHolidays, useLeaves } from '../lib/hooks'
+import { leaveLabel } from '../lib/leave'
 import { saveEntry } from '../lib/storage'
 import { summarize } from '../lib/summary'
 import { sortTasks } from '../lib/tasks'
@@ -40,6 +41,7 @@ export function WeekView({
   const entries = useEntries(keys[0], keys[6])
   const today = todayKey()
   const holidays = useHolidays()
+  const leaves = useLeaves()
 
   return (
     <Page
@@ -55,6 +57,7 @@ export function WeekView({
           const entry = entries.get(key)
           const isToday = key === today
           const holiday = holidays.get(key)
+          const leave = leaves.get(key)
           return (
             <article key={key} className="flex min-w-0 flex-col">
               <button
@@ -71,6 +74,14 @@ export function WeekView({
                 <span className="text-sm font-medium">{formatShort(d)}</span>
               </button>
               <div className="flex min-h-44 flex-1 flex-col gap-2 rounded-b-sm bg-stone-100 p-3">
+                {leave && (
+                  <p className="self-start rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-medium text-emerald-800">
+                    {leaveLabel(leave.type)}
+                    {leave.note && (
+                      <span className="text-emerald-700"> · {leave.note}</span>
+                    )}
+                  </p>
+                )}
                 {holiday && (
                   <p className="self-start rounded-full bg-white px-2.5 py-0.5 text-xs font-medium text-coral-700">
                     {holiday.name}
@@ -144,6 +155,7 @@ export function WeekView({
           label="This week"
           name="สรุปสัปดาห์"
           summary={summarize(entries.values())}
+          leaveDays={keys.filter((k) => leaves.has(k)).length}
           empty="ยังไม่มีงานในสัปดาห์นี้ แตะชื่อวันเพื่อเพิ่มงาน"
           className="min-h-44"
         />
