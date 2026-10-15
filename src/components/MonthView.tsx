@@ -7,9 +7,11 @@ import {
   type DateKey,
 } from '../lib/date'
 import { useEntries } from '../lib/hooks'
+import { summarize } from '../lib/summary'
 import { sortTasks } from '../lib/tasks'
 import { Page } from './Page'
 import { LABEL_WORD } from './styles'
+import { SummaryCard } from './SummaryCard'
 
 const WEEKDAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 
@@ -24,6 +26,11 @@ export function MonthView({
   const days = monthGrid(focus)
   const entries = useEntries(toKey(days[0]), toKey(days[days.length - 1]))
   const today = todayKey()
+  // Only this month's days count, not the neighbouring days the grid shows.
+  const monthPrefix = date.slice(0, 7)
+  const summary = summarize(
+    [...entries.values()].filter((e) => e.date.startsWith(monthPrefix)),
+  )
 
   return (
     <Page title="Monthly plan" heading={formatMonth(focus)}>
@@ -100,6 +107,13 @@ export function MonthView({
           })}
         </div>
       </div>
+      <SummaryCard
+        label="This month"
+        name="สรุปเดือนนี้"
+        summary={summary}
+        empty="ยังไม่มีงานในเดือนนี้ แตะวันที่ในปฏิทินเพื่อเพิ่มงาน"
+        className="mt-5"
+      />
     </Page>
   )
 }
